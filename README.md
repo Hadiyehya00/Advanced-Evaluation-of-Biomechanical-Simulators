@@ -60,8 +60,9 @@ Surgery continues to play a vital role in the treatment of numerous diseases, wi
 ### Solution Approach
 
 ![CGoGN](https://github.com/Hadiyehya00/Advanced-Evaluation-of-Biomechanical-Simulators/blob/main/endoscope.png)
-Image used with permission from InSimo.
-Source: [(https://www.insimo.com/display-bariatric/)]
+
+*Image used with permission from InSimo.*
+*Source: [(https://www.insimo.com/display-bariatric/)]*
 
 
 Current surgical training methods have numerous shortcomings. For instance, existing simulators, whether physical mannequins or basic simulation software, are neither sufficiently realistic nor capable enough to replicate the full range of situations surgeons may encounter in an operating room. Moreover, most simulators generally do not allow for real-time direct interaction with the mannequin or management of complications. This unrealistic and non-interactive training poses an increased risk to patients due to surgeons' lack of preparedness.
