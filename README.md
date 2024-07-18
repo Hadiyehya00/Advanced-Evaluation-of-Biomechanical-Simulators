@@ -55,11 +55,15 @@ If you wish to contribute to CGoGN, follow these steps:
 
 ### Problem Statement
 
-Current surgical training methods have many limitations. For example, existing simulators, whether physical mannequins or basic simulation software, are not realistic enough or capable of reproducing all the situations that surgeons may face in an operating room. Moreover, most simulators generally do not allow direct real-time interaction with the mannequin or the handling of complications. This unrealistic and non-interactive training poses an increased risk to the patient due to the inadequate preparation of surgeons.
+Surgery continues to play a vital role in the treatment of numerous diseases, with its quality and scope improving as progressive development allows not only for saving patients' lives but also greatly enhancing their quality. However, the entirety of surgical practice is precarious and risky. For instance, operating room incidents can arise from undetected anomalies that become apparent or from imperfect techniques. This underscores the need for comprehensive and practical surgical training that prepares young doctors to handle any clinical situation, whether routine or critical. Surgeons should undergo practical training, akin to how pilots are trained on simulators before taking control. Biomechanical simulators that accurately mimic reality represent the future of medical education, ensuring that trainee surgeons can practice both routine and critical cases without endangering patients.
 
 ### Solution Approach
 
-InSimo, a company based in Strasbourg and associated with Inria, designs simulation software dedicated to medical learning through surgery. The company aims to give medical school students their first experiences in a hospital environment, following the principle: "Never the first time on the living."
+Current surgical training methods have numerous shortcomings. For instance, existing simulators, whether physical mannequins or basic simulation software, are neither sufficiently realistic nor capable enough to replicate the full range of situations surgeons may encounter in an operating room. Moreover, most simulators generally do not allow for real-time direct interaction with the mannequin or management of complications. This unrealistic and non-interactive training poses an increased risk to patients due to surgeons' lack of preparedness.
+
+To address these issues, it is crucial to develop an ultra-realistic and interactive biomechanical simulator capable of faithfully recreating the operating room environment. Such a simulator should be able to handle both straightforward and complex scenarios, as well as complications, with real-time direct interaction. Such training is essential to prepare novice surgeons and facilitate their early transition to interacting with real patients.
+
+In this context, the primary challenge to address in this project is the creation of simulation cases for validating solver performance. Specifically, it would be beneficial to compare different test case implementations to determine which offers the best balance between realism, accuracy, and computational time for simulation. This would later enable standardization of testing methods and objective comparison of different implementations, thereby facilitating the selection of the best implementation to enhance surgeons' resolution skills and ensure patient safety.
 
 
 
