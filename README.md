@@ -1,11 +1,12 @@
-# <span style="font-family: 'Times New Roman', Times, serif; color: #800000;">CGoGN</span>
+# CGoGN
 
-<span style="font-family: 'Times New Roman', Times, serif;">CGoGN is a powerful C++ library designed for mesh data structures, geometric modeling, and geometry processing algorithms. It offers versatility in data representation and processing capabilities, essential for applications in computer graphics and computational geometry.</span>
+CGoGN is a powerful C++ library designed for mesh data structures, geometric modeling, and geometry processing algorithms. It offers versatility in data representation and processing capabilities, essential for applications in computer graphics and computational geometry.
 
 ---
+
 ![CGoGN](https://github.com/Hadiyehya00/Advanced-Evaluation-of-Biomechanical-Simulators/blob/main/cgogn.png)
 
-## <span style="font-family: 'Times New Roman', Times, serif; color: #800000;">Features</span>
+## Features
 
 - **Mesh Data Structures:**
   - Combinatorial maps (1D, 2D, 3D)
@@ -26,9 +27,9 @@
 
 ---
 
-## <span style="font-family: 'Times New Roman', Times, serif; color: #800000;">Building CGoGN</span>
+## Building CGoGN
 
-<span style="font-family: 'Times New Roman', Times, serif;">To build CGoGN, follow these steps:</span>
+To build CGoGN, follow these steps:
 
 1. Create a build directory and navigate into it.
 2. Run `cmake <cgogn_path>` to configure the build.
@@ -38,9 +39,9 @@
 
 ---
 
-## <span style="font-family: 'Times New Roman', Times, serif; color: #800000;">Contribution Guidelines</span>
+## Contribution Guidelines
 
-<span style="font-family: 'Times New Roman', Times, serif;">If you wish to contribute to CGoGN, follow these steps:</span>
+If you wish to contribute to CGoGN, follow these steps:
 
 1. Fork the GitHub repository.
 2. Clone your forked repository to your local machine.
@@ -51,21 +52,21 @@
 
 ---
 
-## <span style="font-family: 'Times New Roman', Times, serif; color: #800000;">Professional Development in Surgical Simulation</span>
+## Professional Development in Surgical Simulation
 
-### <span style="font-family: 'Times New Roman', Times, serif; color: #800000;">Problem Statement</span>
+### Problem Statement
 
-<span style="font-family: 'Times New Roman', Times, serif;">Surgery continues to play a vital role in the treatment of numerous diseases, with its quality and scope improving as progressive development allows not only for saving patients' lives but also greatly enhancing their quality. However, the entirety of surgical practice is precarious and risky. For instance, operating room incidents can arise from undetected anomalies that become apparent or from imperfect techniques. This underscores the need for comprehensive and practical surgical training that prepares young doctors to handle any clinical situation, whether routine or critical. Surgeons should undergo practical training, akin to how pilots are trained on simulators before taking control. Biomechanical simulators that accurately mimic reality represent the future of medical education, ensuring that trainee surgeons can practice both routine and critical cases without endangering patients.</span>
+Surgery continues to play a vital role in the treatment of numerous diseases, with its quality and scope improving as progressive development allows not only for saving patients' lives but also greatly enhancing their quality. However, the entirety of surgical practice is precarious and risky. For instance, operating room incidents can arise from undetected anomalies that become apparent or from imperfect techniques. This underscores the need for comprehensive and practical surgical training that prepares young doctors to handle any clinical situation, whether routine or critical. Surgeons should undergo practical training, akin to how pilots are trained on simulators before taking control. Biomechanical simulators that accurately mimic reality represent the future of medical education, ensuring that trainee surgeons can practice both routine and critical cases without endangering patients.
 
-### <span style="font-family: 'Times New Roman', Times, serif; color: #800000;">Solution Approach</span>
+### Solution Approach
 
 ![CGoGN](https://github.com/Hadiyehya00/Advanced-Evaluation-of-Biomechanical-Simulators/blob/main/endoscope.png)
 
-<span style="font-style: italic; font-family: 'Times New Roman', Times, serif;">Image used with permission from InSimo.</span>  
-<span style="font-style: italic; font-family: 'Times New Roman', Times, serif;">Source: [(https://www.insimo.com/display-bariatric/)]</span>
+*Image used with permission from InSimo.*  
+*Source: [(https://www.insimo.com/display-bariatric/)]*
 
-<span style="font-family: 'Times New Roman', Times, serif;">Current surgical training methods have numerous shortcomings. For instance, existing simulators, whether physical mannequins or basic simulation software, are neither sufficiently realistic nor capable enough to replicate the full range of situations surgeons may encounter in an operating room. Moreover, most simulators generally do not allow for real-time direct interaction with the mannequin or management of complications. This unrealistic and non-interactive training poses an increased risk to patients due to surgeons' lack of preparedness.</span>
+Current surgical training methods have numerous shortcomings. For instance, existing simulators, whether physical mannequins or basic simulation software, are neither sufficiently realistic nor capable enough to replicate the full range of situations surgeons may encounter in an operating room. Moreover, most simulators generally do not allow for real-time direct interaction with the mannequin or management of complications. This unrealistic and non-interactive training poses an increased risk to patients due to surgeons' lack of preparedness.
 
-<span style="font-family: 'Times New Roman', Times, serif;">To address these issues, it is crucial to develop an ultra-realistic and interactive biomechanical simulator capable of faithfully recreating the operating room environment. Such a simulator should be able to handle both straightforward and complex scenarios, as well as complications, with real-time direct interaction. Such training is essential to prepare novice surgeons and facilitate their early transition to interacting with real patients.</span>
+To address these issues, it is crucial to develop an ultra-realistic and interactive biomechanical simulator capable of faithfully recreating the operating room environment. Such a simulator should be able to handle both straightforward and complex scenarios, as well as complications, with real-time direct interaction. Such training is essential to prepare novice surgeons and facilitate their early transition to interacting with real patients.
 
-<span style="font-family: 'Times New Roman', Times, serif;">In this context, the primary challenge to address in this project is the creation of simulation cases for validating solver performance. Specifically, it would be beneficial to compare different test case implementations to determine which offers the best balance between realism, accuracy, and computational time for simulation. This would later enable standardization of testing methods and objective comparison of different implementations, thereby facilitating the selection of the best implementation to enhance surgeons' resolution skills and ensure patient safety.</span>
+In this context, the primary challenge to address in this project is the creation of simulation cases for validating solver performance. Specifically, it would be beneficial to compare different test case implementations to determine which offers the best balance between realism, accuracy, and computational time for simulation. This would later enable standardization of testing methods and objective comparison of different implementations, thereby facilitating the selection of the best implementation to enhance surgeons' resolution skills and ensure patient safety.
