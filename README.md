@@ -2,8 +2,9 @@
 
 CGoGN is a powerful C++ library designed for mesh data structures, geometric modeling, and geometry processing algorithms. It offers versatility in data representation and processing capabilities, essential for applications in computer graphics and computational geometry.
 
----
 ![CGoGN](https://github.com/Hadiyehya00/Advanced-Evaluation-of-Biomechanical-Simulators/blob/main/cgogn.png)
+
+---
 
 ## Features
 
@@ -70,3 +71,5 @@ Current surgical training methods have numerous shortcomings. For instance, exis
 To address these issues, it is crucial to develop an ultra-realistic and interactive biomechanical simulator capable of faithfully recreating the operating room environment. Such a simulator should be able to handle both straightforward and complex scenarios, as well as complications, with real-time direct interaction. Such training is essential to prepare novice surgeons and facilitate their early transition to interacting with real patients.
 
 In this context, the primary challenge to address in this project is the creation of simulation cases for validating solver performance. Specifically, it would be beneficial to compare different test case implementations to determine which offers the best balance between realism, accuracy, and computational time for simulation. This would later enable standardization of testing methods and objective comparison of different implementations, thereby facilitating the selection of the best implementation to enhance surgeons' resolution skills and ensure patient safety.
+
+---
