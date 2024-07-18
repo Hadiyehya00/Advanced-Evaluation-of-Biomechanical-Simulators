@@ -72,6 +72,12 @@ To address these issues, it is crucial to develop an ultra-realistic and interac
 
 In this context, the primary challenge to address in this project is the creation of simulation cases for validating solver performance. Specifically, it would be beneficial to compare different test case implementations to determine which offers the best balance between realism, accuracy, and computational time for simulation. This would later enable standardization of testing methods and objective comparison of different implementations, thereby facilitating the selection of the best implementation to enhance surgeons' resolution skills and ensure patient safety.
 
+
+<div style="display: flex; justify-content: space-between;">
+    <img src="https://github.com/Hadiyehya00/Advanced-Evaluation-of-Biomechanical-Simulators/blob/main/insimo.png" alt="CGoGN" width="400"/>
+    <img src="https://github.com/Hadiyehya00/Advanced-Evaluation-of-Biomechanical-Simulators/blob/main/icube.png" alt="Another Image" width="400"/>
+</div>
+
 *© 2024 ICube. Tous droits réservés.*
 
 *© 2024 ISimo. Tous droits réservés.*
