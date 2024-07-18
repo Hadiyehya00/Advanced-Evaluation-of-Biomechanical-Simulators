@@ -1,7 +1,7 @@
 # CGoGN
 
 CGoGN is a powerful C++ library designed for mesh data structures, geometric modeling, and geometry processing algorithms. It offers versatility in data representation and processing capabilities, essential for applications in computer graphics and computational geometry.
-
+![CGoGN](https://github.com/Hadiyehya00/Advanced-Evaluation-of-Biomechanical-Simulators/blob/main/cgogn.png)
 ---
 
 ## Features
@@ -60,6 +60,5 @@ Current surgical training methods have many limitations. For example, existing s
 
 InSimo, a company based in Strasbourg and associated with Inria, designs simulation software dedicated to medical learning through surgery. The company aims to give medical school students their first experiences in a hospital environment, following the principle: "Never the first time on the living."
 
-![Surgical Simulation](https://github.com/Hadiyehya00/Advanced-Evaluation-of-Biomechanical-Simulators/blob/main/cgogn.png)
 
 
