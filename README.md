@@ -1,9 +1,6 @@
-# CGoGN
-
 CGoGN is a powerful C++ library designed for mesh data structures, geometric modeling, and geometry processing algorithms. It offers versatility in data representation and processing capabilities, essential for applications in computer graphics and computational geometry.
 
 ---
-
 ![CGoGN](https://github.com/Hadiyehya00/Advanced-Evaluation-of-Biomechanical-Simulators/blob/main/cgogn.png)
 
 ## Features
@@ -32,9 +29,9 @@ CGoGN is a powerful C++ library designed for mesh data structures, geometric mod
 To build CGoGN, follow these steps:
 
 1. Create a build directory and navigate into it.
-2. Run `cmake <cgogn_path>` to configure the build.
-3. Optionally, specify build options such as `-DCMAKE_BUILD_TYPE=""`.
-4. On **Linux** and **MacOS**, execute `make -jN` (where N is the number of threads).
+2. Run cmake <cgogn_path> to configure the build.
+3. Optionally, specify build options such as -DCMAKE_BUILD_TYPE="".
+4. On **Linux** and **MacOS**, execute make -jN (where N is the number of threads).
 5. On **Windows**, use **Visual Studio (2013 or later)** for compilation.
 
 ---
@@ -62,8 +59,9 @@ Surgery continues to play a vital role in the treatment of numerous diseases, wi
 
 ![CGoGN](https://github.com/Hadiyehya00/Advanced-Evaluation-of-Biomechanical-Simulators/blob/main/endoscope.png)
 
-*Image used with permission from InSimo.*  
+*Image used with permission from InSimo.*
 *Source: [(https://www.insimo.com/display-bariatric/)]*
+
 
 Current surgical training methods have numerous shortcomings. For instance, existing simulators, whether physical mannequins or basic simulation software, are neither sufficiently realistic nor capable enough to replicate the full range of situations surgeons may encounter in an operating room. Moreover, most simulators generally do not allow for real-time direct interaction with the mannequin or management of complications. This unrealistic and non-interactive training poses an increased risk to patients due to surgeons' lack of preparedness.
 
