@@ -1,8 +1,9 @@
 # CGoGN
 
 CGoGN is a powerful C++ library designed for mesh data structures, geometric modeling, and geometry processing algorithms. It offers versatility in data representation and processing capabilities, essential for applications in computer graphics and computational geometry.
-![CGoGN](https://github.com/Hadiyehya00/Advanced-Evaluation-of-Biomechanical-Simulators/blob/main/cgogn.png)
+
 ---
+![CGoGN](https://github.com/Hadiyehya00/Advanced-Evaluation-of-Biomechanical-Simulators/blob/main/cgogn.png)
 
 ## Features
 
