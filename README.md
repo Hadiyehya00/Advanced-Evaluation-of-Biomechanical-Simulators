@@ -59,6 +59,8 @@ Surgery continues to play a vital role in the treatment of numerous diseases, wi
 
 ### Solution Approach
 
+![CGoGN](https://github.com/Hadiyehya00/Advanced-Evaluation-of-Biomechanical-Simulators/blob/main/endoscope.png)
+
 Current surgical training methods have numerous shortcomings. For instance, existing simulators, whether physical mannequins or basic simulation software, are neither sufficiently realistic nor capable enough to replicate the full range of situations surgeons may encounter in an operating room. Moreover, most simulators generally do not allow for real-time direct interaction with the mannequin or management of complications. This unrealistic and non-interactive training poses an increased risk to patients due to surgeons' lack of preparedness.
 
 To address these issues, it is crucial to develop an ultra-realistic and interactive biomechanical simulator capable of faithfully recreating the operating room environment. Such a simulator should be able to handle both straightforward and complex scenarios, as well as complications, with real-time direct interaction. Such training is essential to prepare novice surgeons and facilitate their early transition to interacting with real patients.
