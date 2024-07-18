@@ -60,6 +60,6 @@ Current surgical training methods have many limitations. For example, existing s
 
 InSimo, a company based in Strasbourg and associated with Inria, designs simulation software dedicated to medical learning through surgery. The company aims to give medical school students their first experiences in a hospital environment, following the principle: "Never the first time on the living."
 
-![Surgical Simulation](path_to_your_image.png)
+![Surgical Simulation]([path_to_your_image.png](https://github.com/Hadiyehya00/Advanced-Evaluation-of-Biomechanical-Simulators/blob/main/cgogn.png))
 
 
