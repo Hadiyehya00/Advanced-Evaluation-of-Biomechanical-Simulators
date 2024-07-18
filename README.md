@@ -75,11 +75,11 @@ In this context, the primary challenge to address in this project is the creatio
 <div style="text-align: center; margin-bottom: 20px;">
     <img src="https://github.com/Hadiyehya00/Advanced-Evaluation-of-Biomechanical-Simulators/raw/main/insimo.png" alt="InSimo" width="200" style="margin-bottom: 10px;">
     <br>
+    <span style="font-style: italic;">© 2024 InSimo. Tous droits réservés.</span>
+    <br><br>
     <img src="https://github.com/Hadiyehya00/Advanced-Evaluation-of-Biomechanical-Simulators/raw/main/ICube.jpg" alt="ICube" width="160" style="margin-top: 10px;">
+    <br>
+    <span style="font-style: italic;">© 2024 ICube. Tous droits réservés.</span>
 </div>
-
-*© 2024 ICube. Tous droits réservés.*
-
-*© 2024 ISimo. Tous droits réservés.*
 
 ---
