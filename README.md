@@ -75,7 +75,7 @@ In this context, the primary challenge to address in this project is the creatio
 
 <div style="display: flex; justify-content: space-between;">
     <img src="https://github.com/Hadiyehya00/Advanced-Evaluation-of-Biomechanical-Simulators/blob/main/insimo.png" alt="InSimo" width="200 "/>
-    <img src="https://github.com/Hadiyehya00/Advanced-Evaluation-of-Biomechanical-Simulators/blob/main/ICube.jpg" alt="ICube" width="180 style="margin-right: 10px;"/>
+    <img src="https://github.com/Hadiyehya00/Advanced-Evaluation-of-Biomechanical-Simulators/blob/main/ICube.jpg" alt="ICube" width="180 style="margin-left: 10px;"/>
 </div>
 
 *© 2024 ICube. Tous droits réservés.*
