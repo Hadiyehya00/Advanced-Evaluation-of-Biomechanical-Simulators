@@ -1,11 +1,11 @@
-# <span style="color: #800000;">CGoGN</span>
+# <span style="font-family: 'Times New Roman', Times, serif; color: #800000;">CGoGN</span>
 
 <span style="font-family: 'Times New Roman', Times, serif;">CGoGN is a powerful C++ library designed for mesh data structures, geometric modeling, and geometry processing algorithms. It offers versatility in data representation and processing capabilities, essential for applications in computer graphics and computational geometry.</span>
 
 ---
 ![CGoGN](https://github.com/Hadiyehya00/Advanced-Evaluation-of-Biomechanical-Simulators/blob/main/cgogn.png)
 
-## <span style="color: #800000;">Features</span>
+## <span style="font-family: 'Times New Roman', Times, serif; color: #800000;">Features</span>
 
 - **Mesh Data Structures:**
   - Combinatorial maps (1D, 2D, 3D)
@@ -26,7 +26,7 @@
 
 ---
 
-## <span style="color: #800000;">Building CGoGN</span>
+## <span style="font-family: 'Times New Roman', Times, serif; color: #800000;">Building CGoGN</span>
 
 <span style="font-family: 'Times New Roman', Times, serif;">To build CGoGN, follow these steps:</span>
 
@@ -38,7 +38,7 @@
 
 ---
 
-## <span style="color: #800000;">Contribution Guidelines</span>
+## <span style="font-family: 'Times New Roman', Times, serif; color: #800000;">Contribution Guidelines</span>
 
 <span style="font-family: 'Times New Roman', Times, serif;">If you wish to contribute to CGoGN, follow these steps:</span>
 
@@ -51,18 +51,18 @@
 
 ---
 
-## <span style="color: #800000;">Professional Development in Surgical Simulation</span>
+## <span style="font-family: 'Times New Roman', Times, serif; color: #800000;">Professional Development in Surgical Simulation</span>
 
-### <span style="color: #800000;">Problem Statement</span>
+### <span style="font-family: 'Times New Roman', Times, serif; color: #800000;">Problem Statement</span>
 
 <span style="font-family: 'Times New Roman', Times, serif;">Surgery continues to play a vital role in the treatment of numerous diseases, with its quality and scope improving as progressive development allows not only for saving patients' lives but also greatly enhancing their quality. However, the entirety of surgical practice is precarious and risky. For instance, operating room incidents can arise from undetected anomalies that become apparent or from imperfect techniques. This underscores the need for comprehensive and practical surgical training that prepares young doctors to handle any clinical situation, whether routine or critical. Surgeons should undergo practical training, akin to how pilots are trained on simulators before taking control. Biomechanical simulators that accurately mimic reality represent the future of medical education, ensuring that trainee surgeons can practice both routine and critical cases without endangering patients.</span>
 
-### <span style="color: #800000;">Solution Approach</span>
+### <span style="font-family: 'Times New Roman', Times, serif; color: #800000;">Solution Approach</span>
 
 ![CGoGN](https://github.com/Hadiyehya00/Advanced-Evaluation-of-Biomechanical-Simulators/blob/main/endoscope.png)
 
-*Image used with permission from InSimo.*  
-*Source: [(https://www.insimo.com/display-bariatric/)]*
+<span style="font-style: italic; font-family: 'Times New Roman', Times, serif;">Image used with permission from InSimo.</span>  
+<span style="font-style: italic; font-family: 'Times New Roman', Times, serif;">Source: [(https://www.insimo.com/display-bariatric/)]</span>
 
 <span style="font-family: 'Times New Roman', Times, serif;">Current surgical training methods have numerous shortcomings. For instance, existing simulators, whether physical mannequins or basic simulation software, are neither sufficiently realistic nor capable enough to replicate the full range of situations surgeons may encounter in an operating room. Moreover, most simulators generally do not allow for real-time direct interaction with the mannequin or management of complications. This unrealistic and non-interactive training poses an increased risk to patients due to surgeons' lack of preparedness.</span>
 
