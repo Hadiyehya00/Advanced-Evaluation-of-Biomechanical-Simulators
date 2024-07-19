@@ -3,6 +3,17 @@ name: CI Pipeline
 on: [push] 
 
 jobs:
-run-tests: ubuntu-latest
+  build-linux:
+    name: 'On Linux'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+    uses: actions/checkout@v2
+
+    - name: Execute script 
+    run: bash .\test.sh 
+
+
 
 
