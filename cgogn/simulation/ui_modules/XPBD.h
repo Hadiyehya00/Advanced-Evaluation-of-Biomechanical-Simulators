@@ -431,7 +431,7 @@ Vec3 speed_;
                             Parameters& p = parameters_[selected_mesh_];
                             Vec3& pos = value<Vec3>(*selected_mesh_, p.vertex_position_.get(), v);
                             value<bool>(*selected_mesh_, p.fixed_vertex.get(), v) = true;
-                            pos.y() -= 30;
+                            pos.y() -= 40;
 //                            value<Vec3>(*selected_mesh_, p.vertex_forces_, v)+=
 //                                    value<double>(*selected_mesh_, simu_solver.masse_, v) *Vec3(0, -600, 0);
 
@@ -441,7 +441,7 @@ Vec3 speed_;
                             Parameters& p = parameters_[selected_mesh_];
                             Vec3& pos = value<Vec3>(*selected_mesh_, p.vertex_position_.get(), v);
                             value<bool>(*selected_mesh_, p.fixed_vertex.get(), v) = true;
-                            pos.y() += 30;
+                            pos.y() += 40;
 //                            value<Vec3>(*selected_mesh_, p.vertex_forces_, v)+=
 //                                    value<double>(*selected_mesh_, simu_solver.masse_, v) *Vec3(0, 600, 0);
 
