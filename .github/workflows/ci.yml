@@ -11,6 +11,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v1
 
+      - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y build-essential cmake libeigen3-dev libglfw3-dev
+
     - name: Compile the shape_matching application
       run: |
         mkdir -p build
