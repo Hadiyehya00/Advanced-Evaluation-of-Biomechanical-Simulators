@@ -9,9 +9,9 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
 
-      - name: Install dependencies
+    - name: Install dependencies
       run: |
         sudo apt update
         sudo apt install -y build-essential cmake libeigen3-dev libglfw3-dev
@@ -20,12 +20,16 @@ jobs:
       run: |
         mkdir -p build
         cd build
-        cmake ..
-        cmake --build . --target shape_matching_app
+        cmake .. || exit 1
+        cmake --build . --target shape_matching_app || exit 1
+
+    - name: List build directory
+      run: ls -al build
 
     - name: Run the shape_matching application
       run: |
-        ./cgogn/shape_matching_app
+        ./cgogn/shape_matching_app || exit 1
+
 
 
 
