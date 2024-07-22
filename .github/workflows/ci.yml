@@ -1,6 +1,6 @@
 name: CI Pipeline
 
-on: [push] 
+on: [push]
 
 jobs:
   build-linux:
@@ -9,10 +9,19 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
 
-    - name: Execute script 
-      run: cgogn/simulation/apps/shape_matching.cpp
+    - name: Compile the shape_matching application
+      run: |
+        mkdir -p build
+        cd build
+        cmake ..
+        cmake --build . --target shape_matching_app
+
+    - name: Run the shape_matching application
+      run: |
+        ./cgogn/shape_matching_app
+
 
 
 
