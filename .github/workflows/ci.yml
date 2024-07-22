@@ -28,4 +28,4 @@ jobs:
 
     - name: Run the shape_matching application
       run: |
-        ./build/path/to/shape_matching_app || exit 1
+        ./cgogn/shape_matching_app || exit 1
