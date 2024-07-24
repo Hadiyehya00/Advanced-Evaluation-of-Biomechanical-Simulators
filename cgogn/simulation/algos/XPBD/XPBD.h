@@ -24,9 +24,17 @@
 int DENSITY; //Default value
 float POISSON_RATIO;
 int YOUNG_MODULUS;
+float TIME_STEP;
+
+
+Eigen::Vector3f position_plan;
+Eigen::Vector3f dimension;
+int angle;
+float friction_coefficient;
 
 Eigen::Vector3f pos_cube;
 Eigen::Vector3f size_cube;
+
 Eigen::Vector3f bbmin;
 Eigen::Vector3f bbmax;
 
@@ -43,20 +51,41 @@ void setYoungModule(int young_modulus_){
     YOUNG_MODULUS = young_modulus_;
 }
 
-void setPlanPosition(int x_, int y_, int z_, int width_, int height_, int depth_)
-{
-    pos_cube.x() = x_;
-    pos_cube.y() = y_;
-    pos_cube.z() = z_;
-    size_cube.x() = width_;
-    size_cube.y() = height_;
-    size_cube.z() = depth_;
+void setTimeStep(float time_step_){
+    TIME_STEP = time_step_;
 }
 
-//void SetPlanSize(int width_, int height_, int depth_)
+//void setPlanPosition(int x_, int y_, int z_, int width_, int height_, int depth_)
 //{
-
+//    pos_cube.x() = x_;
+//    pos_cube.y() = y_;
+//    pos_cube.z() = z_;
+//    size_cube.x() = width_;
+//    size_cube.y() = height_;
+//    size_cube.z() = depth_;
 //}
+
+void setPosition(int position_x, int position_y, int position_z)
+{
+    position_plan.x() = position_x;
+    position_plan.y() = position_y;
+    position_plan.z() = position_z;
+}
+
+void setDimension(int dimension_x, int dimension_y, int dimension_z)
+{
+    dimension.x() = dimension_x;
+    dimension.y() = dimension_y;
+    dimension.z() = dimension_z;
+}
+
+void setAngle(int angle_){
+    angle = angle_;
+}
+void setFrictionCoef(float friction_coef_){
+    friction_coefficient = friction_coef_;
+}
+
 
 std::string csv_data;
 std::string csv_data_position;

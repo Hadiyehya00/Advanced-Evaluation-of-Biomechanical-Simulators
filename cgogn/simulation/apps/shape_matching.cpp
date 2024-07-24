@@ -71,51 +71,34 @@ using Vec3 = cgogn::geometry::Vec3;
 struct parameters_ {
     reflect_fields(
         ((int), density),
-        ((float), cp),
-        ((int), ym)
-
+        ((float), poisson_ratio),
+        ((int), young_modulus),
+        ((float), time_step),
+        ((int), position_x),
+        ((int), position_y),
+        ((int), position_z),
+        ((int), dimension_x),
+        ((int), dimension_y),
+        ((int), dimension_z),
+        ((int), angle),
+        ((float), friction_coef)
     );
 };
-
-struct pos_cube_parameters{
-    reflect_fields(
-        ((int), x),
-        ((int), y),
-        ((int), z),
-        ((int), width),
-        ((int), height),
-        ((int), depth)
-    );
-};
-
-//struct size_cube_parameters {
-//    reflect_fields(
-
-//    );
-//};
 
 int main(int argc, char** argv)
 {
-
-//*******************************************************************************************************//
-
     std::string filename;
     std::string filename_csv_energy;
     std::string filename_csv_position;
 
-    //std::string filename1;
-
-    if (argc < 6)
+    if (argc < 5)
     {
         filename = std::string("/home/yehya/Desktop/JSON/cube86.mesh");
-        //filename1 = std::string("/home/yehya/Downloads/cube86.mesh");
     }
         filename = std::string(argv[1]);
         const char* json_file = argv[2];
         filename_csv_energy = std::string(argv[3]);
         filename_csv_position = std::string(argv[4]);
-        const char* json_file_plan = argv[5];
-
 
     cgogn::thread_start();
 
@@ -126,14 +109,11 @@ int main(int argc, char** argv)
     cgogn::ui::MeshProvider<Mesh> mp(app);
     cgogn::ui::VolumeRender<Mesh> mrsr(app);
     cgogn::ui::SimBall<Mesh> xpbd(app);
-    //cgogn::ui::SimBall::Parameters<Mesh> p;
-    //cgogn::simulation::XPBD<MAP> xp(app);
 
     cgogn::ui::View* v1 = app.current_view();
     v1->link_module(&mp);
     v1->link_module(&mrsr);
     v1->link_module(&xpbd);
-    //v1->link_module(&xp);
 
     app.init_modules();
 
@@ -161,72 +141,7 @@ int main(int argc, char** argv)
 
     //xpbd.set_vertex_position(*m, position);
 
-
-//    Vec3 shiftVec = cgogn::rendering::GLVec3d(1,200,1);
-
-//if(xpbd.c_t ==5000){
-//    cgogn::foreach_cell(*m, [&](Vertex v) -> bool {
-//        cgogn::value<Vec3>(*m, position, v) = cgogn::value<Vec3>(*m, position, v)+shiftVec ;
-//        return true;
-//    });
-//}
-
-//xpbd.startSimulation();
-
-//if (xpbd.need_update_)
-//{
-
-//    p.update_move_vertex_vbo();
-
-//    xpbd.mesh_provider_->emit_attribute_changed(*m, position.get());
-
-
-//    xpbd.need_update_ = false;
-//}
-
-
-    //************************************************
-//    Mesh* m1 = mp.load_volume_from_file(filename1);
-//    if (!m1)
-//    {
-//        std::cout << "File could not be loaded" << std::endl;
-//        return 1;
-//    }
-
-//    std::shared_ptr<Attribute<Vec3>> position1 = cgogn::get_attribute<Vec3, Vertex>(*m1, "position");
-
-//    cgogn::foreach_cell(*m1, [&](Vertex v) -> bool {
-//        cgogn::value<Vec3>(*m1, position1, v) *= 100;
-//        return true;
-//    });
-
-//    cgogn::index_cells<Mesh::Volume>(*m1);
-//    cgogn::index_cells<Mesh::Edge>(*m1);
-//    cgogn::index_cells<Mesh::Face>(*m1);
-
-//    mrsr.set_vertex_position(*v1, *m1, position1);
-//    Vec3 shiftVec = cgogn::rendering::GLVec3d(0,200,0);
-//    cgogn::foreach_cell(*m, [&](Vertex v) -> bool {
-//        cgogn::value<Vec3>(*m, position1, v) = cgogn::value<Vec3>(*m, position1, v) +shiftVec;
-//        return true;
-//    });
-
-
-
-//            xpbd.selected_mesh_ = m;
-//            xpbd.start();
-
-
-
-
-
-
-
-
-//***********************************************************************************************************************//
-
-
-
+//*****************JSON**********************//
     std::cout<<"test"<<std::endl;
 
         reflect::codecs::json::preferences prefs;
@@ -237,24 +152,10 @@ int main(int argc, char** argv)
         reflect::stream_writer writer(std::cout);
         reflect::codecs::json::encoder encode(writer,prefs);
 
-        parameters_ p {500, 0.46f};
-
-        pos_cube_parameters pos_params {0, -200, 100, 250, 20, 250} ;
-
-//        size_cube_parameters size_params {250, 20, 250};
-
+        parameters_ p {1800, 0.46f, 100000000, 0.02f, 0, -300, 0, 400, 20, 400, 0, 1.0f};
 
         encode(p);
-        encode(pos_params);
-//        encode(size_params);
 
-
-//        if (argc < 3) {
-//                std::cerr << "Usage: " << argv[0] << " <json_file>" << std::endl;
-//                return 1;
-//            }
-
-//            const char* json_file = argv[2];
             std::ifstream file(json_file);
 
             if (!file.is_open()) {
@@ -262,60 +163,48 @@ int main(int argc, char** argv)
                 return 1;
             }
 
-        std::string line;
 
-        std::getline(file, line);
-            //std::istringstream lineStream(line);
-            reflect::string_reader reader(line);
+            std::string buffer;
+               std::string line;
+               while (std::getline(file, line)) {
+                   buffer += line;
+               }
+               file.close();
+
+            reflect::string_reader reader(buffer);
             reflect::codecs::json::decoder decode(reader);
+
             decode(p);
+
             int density_ = p.density;
-            float poisson_ratio_ = p.cp;
-            int young_modulus_ = p.ym;
+            float poisson_ratio_ = p.poisson_ratio;
+            int young_modulus_ = p.young_modulus;
+            float time_step_ = p.time_step;
+            int position_x_ = p.position_x;
+            int position_y_ = p.position_y;
+            int position_z_ = p.position_z;
+            int dimension_x_ = p.dimension_x;
+            int dimension_y_ = p.dimension_y;
+            int dimension_z_ = p.dimension_z;
+            int angle_ = p.angle;
+            float friction_coef_ = p.friction_coef;
+
+
             setDensity(density_);
             setPoissonRatio(poisson_ratio_);
             setYoungModule(young_modulus_);
+            setTimeStep(time_step_);
+
+            setPosition(position_x_, position_y_, position_z_);
+            setDimension(dimension_x_, dimension_y_, dimension_z_);
+            setAngle(angle_);
+            setFrictionCoef(friction_coef_);
 
             encode(p);
 
-
             Setcsv_energy(filename_csv_energy);
             Setcsv_position(filename_csv_position);
-
-
-            std::ifstream file_plan(json_file_plan);
-
-            if (!file_plan.is_open()) {
-                std::cerr << "Failed to open file: " << json_file_plan << std::endl;
-                return 1;
-            }
-
-        std::string line_plan;
-
-        std::getline(file_plan, line_plan);
-
-            reflect::string_reader reader_plan(line_plan);
-            reflect::codecs::json::decoder decode_plan(reader_plan);
-            decode_plan(pos_params);
-//            decode_plan(size_params);
-
-            int x = pos_params.x;
-            int y = pos_params.y;
-            int z = pos_params.z;
-            int width = pos_params.width;
-            int height = pos_params.height;
-            int depth = pos_params.depth;
-
-
-//            setCP(poisson_ratio_);
-
-            setPlanPosition(x, y, z, width, height, depth);
-//            SetPlanSize(width, height, depth);
-            encode(pos_params);
-//            encode(size_params);
-
-
-//***********************************************************************************************************************//
+//*******************END JSON******************************//
 
 //    mp.emit_attribute_changed(*m1, position1.get());
 

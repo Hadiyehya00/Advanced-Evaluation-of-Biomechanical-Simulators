@@ -131,8 +131,8 @@ class SimBall : public ViewModule
 
 public:
     SimBall(const App& app) : ViewModule(app, "Cube Simulation"), selected_view_(app.current_view()), running_(false),
-    apply_gravity(false), apply_force(true), shape_(nullptr), draw_cube(true),
-    size_cube_ref(350, 1, 350), pos_cube_ref(0,0,0), Zaxis_cube(0, 1, 0), c_t(0.000f)
+    apply_gravity(true), apply_force(false), shape_(nullptr), draw_cube(true),
+    size_cube_ref(550, 1, 550), size_cube_arr(1200, 1, 1200), pos_cube_ref(0,0,0), pos_cube_arr(0,-200,0), Zaxis_cube(0, 1, 0), c_t(0.000f)
     {
 
     }
@@ -336,7 +336,7 @@ protected:
         connections_.push_back(boost::synapse::connect<typename MeshProvider<MESH>::mesh_added>(
             mesh_provider_, this, &SimBall<MESH>::init_mesh));
         shape_ = rendering::ShapeDrawer::instance();
-        shape_->color(rendering::ShapeDrawer::CUBE) = rendering::GLColor(0.24f, 0.0f, 0.5f, 1.0f);
+        shape_->color(rendering::ShapeDrawer::CUBE) = rendering::GLColor(1.0f, 1.0f, 1.0f, 1.0f);
     }
     //--------------------------------------------------------------------------------------------------------------------------------//
     void mouse_press_event(View *view, int32 button, int32 x, int32 y) override
@@ -379,11 +379,13 @@ float32 dt = 0.000f;
 bool k = true;
 float incline_angle = M_PI / 6; // 30 degrees in radians
 float incline_angle_p2 = -1*M_PI / 6;
+//float incline_angle_p0 = 0;
+float incline_angle_arr = M_PI / 2;
 Vec3 speed_;
 
 
 
-#define TIME_STEP 0.00002f
+//#define TIME_STEP 0.02f
 
     void start()
     {
@@ -467,9 +469,9 @@ Vec3 speed_;
                     if(draw_cube)
                     {
                         Vec3 position;
-                        Vec3 axis_x = Vec3(pos_cube_ref.x(),0,0);
-                        Vec3 axis_y = Vec3(0, pos_cube_ref.y(),0);
-                        Vec3 axis_z = Vec3(0,0,pos_cube_ref.z());
+                        Vec3 axis_x = Vec3(1,0,0);
+                        Vec3 axis_y = Vec3(0, 1,0);
+                        Vec3 axis_z = Vec3(0,0,1);
                         //p.frame_manipulator_.get_position(position);
 
                         position = Vec3(pos_cube_ref.x(), pos_cube_ref.y(), pos_cube_ref.z());
@@ -485,9 +487,10 @@ Vec3 speed_;
                         parallel_foreach_cell(*selected_mesh_, [&](Vertex v) -> bool {
                             Vec3& pos = value<Vec3>(*selected_mesh_, p.vertex_position_.get(), v);
  //************Plan 0degree************//
-                            Vec3 pos_vertex_cube = pos - pos_cube.cast<double>();
-                            double dist0 = pos_vertex_cube.dot(axis_y)-20;
-                            double d0 = position.dot(axis_y);
+                            Vec3 normal_p0(0, std::cos(angle), std::sin(angle));
+                            Vec3 pos_vertex_cube = pos - position_plan.cast<double>();
+                            double dist_p0 = pos_vertex_cube.dot(normal_p0)-20;
+                            double d_p0 = position.dot(normal_p0);
  //************END************//
 
  //************Plan 30degree (inclinaison yz, x fixe)************//
@@ -512,12 +515,23 @@ Vec3 speed_;
                             }
 
 //******************Collision Plan 0*************************//
-//                            if(dist0<d0)
-//                            {
-//                                value<Vec3>(*selected_mesh_, p.vertex_position_.get(), v) += (d0-dist0) * axis_y;
-//                                value<Vec3>(*selected_mesh_, simu_solver.speed_.get(), v) -=
-//                                    axis_y.dot(value<Vec3>(*selected_mesh_, simu_solver.speed_.get(), v)) * axis_y;
-//                            }
+                            if(dist_p0<d_p0)
+
+                            {
+                                //double friction_coefficient_p0 = 1.0;
+                                Vec3& speed_p0 = value<Vec3>(*selected_mesh_, simu_solver.speed_.get(), v);
+                                value<Vec3>(*selected_mesh_, p.vertex_position_.get(), v) += (d_p0-dist_p0) * normal_p0;
+                                speed_p0 -=normal_p0.dot(speed_p0) * normal_p0;
+
+                                Vec3 speed_normal_p0 = normal_p0.dot(speed_p0) * normal_p0;
+                                Vec3 speed_tangent_p0 = speed_p0 - speed_normal_p0;
+
+
+                                Vec3 friction_force_tangent_p0 = -friction_coefficient * speed_tangent_p0;
+
+                                speed_p0 += friction_force_tangent_p0;
+
+                            }
 //*******************END****************************//
 
 
@@ -689,16 +703,14 @@ Vec3 speed_;
             }
 
 
-//                auto& m = selected_mesh_;
-//                MeshData<MESH>& md = mesh_provider_->mesh_data(*m);
-                Eigen::Vector3f bb_min = Eigen::Vector3f(md.bb_min_.x()+md.bb_max_.x()/2,
-                                                         md.bb_min_.y()-10,
-                                                         md.bb_min_.z()+md.bb_max_.z()/2);
-                Eigen::Vector3f bb_max = Eigen::Vector3f(md.bb_max_.x()-md.bb_max_.x()/2,
-                                                         md.bb_max_.y()+10,
-                                                         md.bb_max_.z()-md.bb_max_.z()/2);
-                bbmin = bb_min;
-                bbmax = bb_max;
+//                Eigen::Vector3f bb_min = Eigen::Vector3f(md.bb_min_.x()+md.bb_max_.x()/2,
+//                                                         md.bb_min_.y()-10,
+//                                                         md.bb_min_.z()+md.bb_max_.z()/2);
+//                Eigen::Vector3f bb_max = Eigen::Vector3f(md.bb_max_.x()-md.bb_max_.x()/2,
+//                                                         md.bb_max_.y()+10,
+//                                                         md.bb_max_.z()-md.bb_max_.z()/2);
+//                bbmin = bb_min;
+//                bbmax = bb_max;
 
 //                std::cout<<"bb min = "<<bbmin<<std::endl;
 //                std::cout<<"bb max = "<<bbmax<<std::endl;
@@ -706,29 +718,29 @@ Vec3 speed_;
 //                std::cout<<"max ="<<md.bb_max_.x()<<", "<<md.bb_max_.y()<<", "<<md.bb_max_.z()<<std::endl;
 
            }
-            Eigen::Vector3f pos_cube_ (0, 30, 0) ;
-            Eigen::Affine3f transfo0 = Eigen::Translation3f(bbmin+pos_cube_)*Eigen::Scaling(size_cube);
-            shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * transfo0.matrix());
+//            Eigen::Vector3f pos_cube_ (0, 30, 0) ;
+//            Eigen::Affine3f transfo0 = Eigen::Translation3f(bbmin+pos_cube_)*Eigen::Scaling(size_cube);
+//            shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * transfo0.matrix());
 
-            Eigen::Affine3f transfo1 = Eigen::Translation3f(bbmax-pos_cube_)*Eigen::Scaling(size_cube);
-            shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * transfo1.matrix());
+//            Eigen::Affine3f transfo1 = Eigen::Translation3f(bbmax-pos_cube_)*Eigen::Scaling(size_cube);
+//            shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * transfo1.matrix());
 
-            foreach_cell(*selected_mesh_, [&](Vertex v) -> bool {
-                Parameters& p = parameters_[selected_mesh_];
-                Vec3& pos = value<Vec3>(*selected_mesh_, p.vertex_position_.get(), v);
+//            foreach_cell(*selected_mesh_, [&](Vertex v) -> bool {
+//                Parameters& p = parameters_[selected_mesh_];
+//                Vec3& pos = value<Vec3>(*selected_mesh_, p.vertex_position_.get(), v);
 
-                if (pos.y() <= (bbmin.y()+10)+20 && pos.y() >= bbmin.y()+10)
-                {
-                    vertices_inferior.push_back(v);
-                }
+//                if (pos.y() <= (bbmin.y()+10)+20 && pos.y() >= bbmin.y()+10)
+//                {
+//                    vertices_inferior.push_back(v);
+//                }
 
-                if (pos.y() <= bbmax.y()-10 && pos.y() >= (bbmax.y()-10)-20)
-                {
-                    vertices_superior.push_back(v);
-                }
+//                if (pos.y() <= bbmax.y()-10 && pos.y() >= (bbmax.y()-10)-20)
+//                {
+//                    vertices_superior.push_back(v);
+//                }
 
-                return true;
-            });
+//                return true;
+//            });
 
 
 //************Draw Plan ref************//
@@ -736,9 +748,19 @@ Vec3 speed_;
 //                shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * transfo0.matrix());
 //************END************//
 
+//************Draw Plan arr************//
+//                   Eigen::Matrix3f rotation_matrix_arr;
+//                   rotation_matrix_arr = Eigen::AngleAxisf(incline_angle_arr, Eigen::Vector3f::UnitX());
+//                   Eigen::Affine3f incline_transformation_arr = Eigen::Affine3f::Identity();
+//                   incline_transformation_arr.rotate(rotation_matrix_arr);
+//                   Eigen::Affine3f transfo_arr = Eigen::Translation3f(pos_cube_arr)*Eigen::Scaling(size_cube_arr);
+//                   Eigen::Affine3f final_transformation_arr = incline_transformation_arr * transfo_arr;
+//                   shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * final_transformation_arr.matrix());
+//************END************//
+
 //************Draw Plan 0degree************//
-//               Eigen::Affine3f transfo0 = Eigen::Translation3f(pos_cube)*Eigen::Scaling(size_cube);
-//               shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * transfo0.matrix());
+                   Eigen::Affine3f transfo0 = Eigen::Translation3f(position_plan)*Eigen::Scaling(dimension);
+                   shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * transfo0.matrix());
 //************END************//
 
 //************Draw Plan 30degree************//
@@ -883,7 +905,9 @@ public:
 //  Eigen::Vector3f pos_cube;
 //  Eigen::Vector3f size_cube;
     Eigen::Vector3f size_cube_ref;
+    Eigen::Vector3f size_cube_arr;
     Eigen::Vector3f pos_cube_ref;
+    Eigen::Vector3f pos_cube_arr;
     Vec3 Zaxis_cube;
 
     rendering::ShapeDrawer* shape_;
