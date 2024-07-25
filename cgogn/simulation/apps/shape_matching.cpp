@@ -68,12 +68,17 @@ using Volume = typename cgogn::mesh_traits<Mesh>::Volume;
 
 using Vec3 = cgogn::geometry::Vec3;
 
-struct parameters_ {
+struct parameters_a {
     reflect_fields(
         ((int), density),
         ((float), poisson_ratio),
         ((int), young_modulus),
-        ((float), time_step),
+        ((float), time_step)
+    );
+};
+
+struct parameters_b {
+    reflect_fields(
         ((int), position_x),
         ((int), position_y),
         ((int), position_z),
@@ -82,6 +87,13 @@ struct parameters_ {
         ((int), dimension_z),
         ((int), angle),
         ((float), friction_coef)
+    );
+};
+
+struct json_data {
+    reflect_fields(
+        ((parameters_a), param_sim),
+        ((parameters_b), plan)
     );
 };
 
@@ -152,9 +164,13 @@ int main(int argc, char** argv)
         reflect::stream_writer writer(std::cout);
         reflect::codecs::json::encoder encode(writer,prefs);
 
-        parameters_ p {1800, 0.46f, 100000000, 0.02f, 0, -300, 0, 400, 20, 400, 0, 1.0f};
+        parameters_a param_sim{1800, 0.46f, 100000000, 0.03f};
+        parameters_b plan{0, -300, 0, 300, 20, 300, 0, 1.0f};
 
-        encode(p);
+        // Définition de la structure JSON
+        json_data data{param_sim, plan};
+
+        encode(data);
 
             std::ifstream file(json_file);
 
@@ -174,20 +190,21 @@ int main(int argc, char** argv)
             reflect::string_reader reader(buffer);
             reflect::codecs::json::decoder decode(reader);
 
-            decode(p);
+            decode(data);
 
-            int density_ = p.density;
-            float poisson_ratio_ = p.poisson_ratio;
-            int young_modulus_ = p.young_modulus;
-            float time_step_ = p.time_step;
-            int position_x_ = p.position_x;
-            int position_y_ = p.position_y;
-            int position_z_ = p.position_z;
-            int dimension_x_ = p.dimension_x;
-            int dimension_y_ = p.dimension_y;
-            int dimension_z_ = p.dimension_z;
-            int angle_ = p.angle;
-            float friction_coef_ = p.friction_coef;
+            int density_ = data.param_sim.density;
+            float poisson_ratio_ = data.param_sim.poisson_ratio;
+            int young_modulus_ = data.param_sim.young_modulus;
+            float time_step_ = data.param_sim.time_step;
+
+            int position_x_ = data.plan.position_x;
+            int position_y_ = data.plan.position_y;
+            int position_z_ = data.plan.position_z;
+            int dimension_x_ = data.plan.dimension_x;
+            int dimension_y_ = data.plan.dimension_y;
+            int dimension_z_ = data.plan.dimension_z;
+            int angle_ = data.plan.angle;
+            float friction_coef_ = data.plan.friction_coef;
 
 
             setDensity(density_);
@@ -200,7 +217,7 @@ int main(int argc, char** argv)
             setAngle(angle_);
             setFrictionCoef(friction_coef_);
 
-            encode(p);
+            encode(data);
 
             Setcsv_energy(filename_csv_energy);
             Setcsv_position(filename_csv_position);

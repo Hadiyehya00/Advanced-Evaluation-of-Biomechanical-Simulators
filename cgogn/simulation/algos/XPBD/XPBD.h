@@ -87,12 +87,12 @@ void setFrictionCoef(float friction_coef_){
 }
 
 
-std::string csv_data;
+std::string csv_data_energy;
 std::string csv_data_position;
 
 void Setcsv_energy (std::string filename)
 {
-    csv_data = filename;
+    csv_data_energy = filename;
 }
 
 void Setcsv_position (std::string filename)
