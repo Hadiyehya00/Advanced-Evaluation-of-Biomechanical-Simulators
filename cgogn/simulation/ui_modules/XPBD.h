@@ -25,6 +25,8 @@
 #define CGOGN_MODULE_XPBD_MODULE_H_
 
 #include <cgogn/core/ui_modules/mesh_provider.h>
+#include <cgogn/core/types/mesh_traits.h>
+
 #include <cgogn/ui/module.h>
 #include <cgogn/ui/app.h>
 #include <cgogn/ui/view.h>
@@ -33,8 +35,6 @@
 #include <cgogn/rendering/vbo_update.h>
 #include <cgogn/rendering/frame_manipulator.h>
 #include <cgogn/rendering/ui_modules/volume_render.h>
-
-#include <cgogn/core/types/mesh_traits.h>
 
 #include <cgogn/geometry/algos/selection.h> // parallel_foreach_cell
 #include <cgogn/geometry/algos/picking.h>
@@ -48,18 +48,18 @@
 
 #include <cgogn/modeling/algos/subdivision.h>
 #include <stdlib.h>
-
 #include <fstream>
+
+#include <chrono>
 
 namespace cgogn
 {
-
 namespace ui
 {
 
 template <typename MESH>
 
-class SimBall : public ViewModule
+class SimXPBD : public ViewModule
 {
     template <typename T>
     using Attribute = typename mesh_traits<MESH>::template Attribute<T>;
@@ -67,8 +67,8 @@ class SimBall : public ViewModule
     using Edge = typename mesh_traits<MESH>::Edge;
     using Vec3 = geometry::Vec3;
     using Mat3d = geometry::Mat3d;
-
     using Volume = typename mesh_traits<MESH>::Volume;
+
     std::vector<Vertex> vertices_inferior;
     std::vector<Vertex> vertices_superior;
 
@@ -113,71 +113,61 @@ class SimBall : public ViewModule
         Vec3 move_vertex_;
         rendering::VBO move_vertex_vbo_;
         rendering::VBO edges_vbo_;
-
         rendering::FrameManipulator frame_manipulator_;
-
-
         std::shared_ptr<Attribute<Vec3>> init_vertex_position_;
         float32 vertex_base_size_;
         float32 vertex_scale_factor_;
-
-
         std::shared_ptr<Attribute<bool>> fixed_vertex;
         bool show_frame_manipulator_;
-
         std::unique_ptr<rendering::ShaderPointSprite::Param> param_move_vertex_;
         std::unique_ptr<rendering::ShaderBoldLine::Param> param_edge_;
     };
 
 public:
-    SimBall(const App& app) : ViewModule(app, "Cube Simulation"), selected_view_(app.current_view()), running_(false),
-    apply_gravity(true), apply_force(false), shape_(nullptr), draw_cube(true),
-    size_cube_ref(550, 1, 550), size_cube_arr(1200, 1, 1200), pos_cube_ref(0,0,0), pos_cube_arr(0,-200,0), Zaxis_cube(0, 1, 0), c_t(0.000f)
+    SimXPBD(const App& app) : ViewModule(app, "Cube Simulation"), selected_view_(app.current_view()), running_(false),
+        apply_gravity(true), apply_force(false), shape_(nullptr), draw_cube(true),
+        size_cube_ref(550, 1, 550), size_cube_arr(1200, 1, 1200), pos_cube_ref(0,0,0), pos_cube_arr(0,-200,0), Zaxis_cube(0, 1, 0), c_t(0.000f)
     {
 
     }
 
-    ~SimBall()
+    ~SimXPBD()
     {
 
     }
 
 private:
- //********************************************************************************************************************************//
     void init_mesh(MESH* m)
     {
         Parameters& p = parameters_[m];
         p.mesh_ = m;
         mesh_connections_[m].push_back(
-            boost::synapse::connect<typename MeshProvider<MESH>::template attribute_changed_t<Vec3>>(
-                m, [this, m](Attribute<Vec3>* attribute) {
-                    Parameters& p = parameters_[m];
-                    if (p.vertex_position_.get() == attribute)
-                    {
-                        p.vertex_base_size_ = geometry::mean_edge_length(*m, p.vertex_position_.get()) / 6.0;
-                    }
-                }));
+                    boost::synapse::connect<typename MeshProvider<MESH>::template attribute_changed_t<Vec3>>(
+                        m, [this, m](Attribute<Vec3>* attribute) {
+            Parameters& p = parameters_[m];
+            if (p.vertex_position_.get() == attribute)
+            {
+                p.vertex_base_size_ = geometry::mean_edge_length(*m, p.vertex_position_.get()) / 6.0;
+            }
+        }));
         mesh_connections_[m].push_back(
-            boost::synapse::connect<typename MeshProvider<MESH>::connectivity_changed>(m, [this, m]() {
-                Parameters& p = parameters_[m];
-                if (p.vertex_position_ && p.init_vertex_position_ && p.vertex_forces_ && p.vertex_masse_)
-                {
-                    // sm_solver_.update_topo(*m, {});
-                }
-            }));
+                    boost::synapse::connect<typename MeshProvider<MESH>::connectivity_changed>(m, [this, m]() {
+            Parameters& p = parameters_[m];
+            if (p.vertex_position_ && p.init_vertex_position_ && p.vertex_forces_ && p.vertex_masse_)
+            {
+                // sm_solver_.update_topo(*m, {});
+            }
+        }));
     }
- //********************************************************************************************************************************//
 
 public:
-
-//************************resize mesh***************************************************//
+    //**********resize mesh**********//
     void find_box(const MESH& mesh, Vec3& pt_min, Vec3& pt_max, const std::shared_ptr<Attribute<Vec3>>& vertex_position_)
     {
         pt_min = Vec3(std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
         pt_max = Vec3(std::numeric_limits<double>::lowest(), std::numeric_limits<double>::lowest(), std::numeric_limits<double>::lowest());
 
         foreach_cell(mesh, [&](Vertex v) -> bool {
-
             Vec3 pos = value<Vec3>(mesh, vertex_position_, v);
             for (int i = 0; i < 3; ++i)
             {
@@ -210,9 +200,9 @@ public:
             return true;
         });
     }
-//************************END resize mesh***************************************************//
+    //**********END**********//
 
-bool t=false;
+    bool t=false;
     void set_vertex_position(const MESH& m, const std::shared_ptr<Attribute<Vec3>>& vertex_position)
     {
         Parameters& p = parameters_[&m];
@@ -220,13 +210,10 @@ bool t=false;
         Vec3 pt_max;
 
         find_box(m, pt_min, pt_max, vertex_position);
-
         Vec3 new_box_(300, 300, 300);
         Vec3 scaling_factor_ = scaling_factor(pt_min, pt_max, new_box_);
-
         resize_mesh(m, scaling_factor_, vertex_position);
         t=true;
-
 
         simu_solver.init_solver(*selected_mesh_, vertex_position);
         p.vertex_position_ = vertex_position;
@@ -259,14 +246,11 @@ bool t=false;
         p.vertex_masse_ = vertex_masse;
     }
 
-
     void call_set_vertex_position()
     {
         mesh_provider_->foreach_mesh([this](MESH& m, const std::string& name) {
             selected_mesh_ = &m;
         });
-
-        //need_update_ = true;
 
         Parameters& p = parameters_[selected_mesh_];
 
@@ -282,21 +266,20 @@ bool t=false;
         {
             Parameters& p = parameters_[selected_mesh_];
 
-
-
-            if (need_update_) {
+            if (need_update_)
+            {
                 p.update_move_vertex_vbo();
                 mesh_provider_->emit_attribute_changed(*selected_mesh_, p.vertex_position_.get());
                 need_update_ = false;
             }
         }
     }
-    void startSimulation() {
+
+    void startSimulation()
+    {
         mesh_provider_->foreach_mesh([this](MESH& m, const std::string& name) {
             selected_mesh_ = &m;
         });
-
-        //need_update_ = true;
 
         Parameters& p = parameters_[selected_mesh_];
 
@@ -317,7 +300,8 @@ bool t=false;
                 start();
             }
 
-            if (need_update_) {
+            if (need_update_)
+            {
                 p.update_move_vertex_vbo();
                 mesh_provider_->emit_attribute_changed(*selected_mesh_, p.vertex_position_.get());
                 need_update_ = false;
@@ -325,20 +309,19 @@ bool t=false;
         }
     }
 
+
 protected:
-    //
-    //********************************************************************************************************************************//
     void init() override
     {
         mesh_provider_ = static_cast<ui::MeshProvider<MESH>*>(
-            app_.module("MeshProvider (" + std::string{mesh_traits<MESH>::name} + ")"));
+                    app_.module("MeshProvider (" + std::string{mesh_traits<MESH>::name} + ")"));
         mesh_provider_->foreach_mesh([this](MESH& m, const std::string&) { init_mesh(&m); });
         connections_.push_back(boost::synapse::connect<typename MeshProvider<MESH>::mesh_added>(
-            mesh_provider_, this, &SimBall<MESH>::init_mesh));
+                                   mesh_provider_, this, &SimXPBD<MESH>::init_mesh));
         shape_ = rendering::ShapeDrawer::instance();
         shape_->color(rendering::ShapeDrawer::CUBE) = rendering::GLColor(1.0f, 1.0f, 1.0f, 1.0f);
     }
-    //--------------------------------------------------------------------------------------------------------------------------------//
+
     void mouse_press_event(View *view, int32 button, int32 x, int32 y) override
     {
         Parameters& p = parameters_[selected_mesh_];
@@ -346,20 +329,20 @@ protected:
         {
             if(p.vertex_position_)
             {
-              rendering::GLVec3d near = view->unproject(x, y, 0.0);
-              rendering::GLVec3d far = view->unproject(x, y, 1.0);
-              Vec3 A{near.x(), near.y(), near.z()};
-              Vec3 B{far.x(), far.y(), far.z()};
-              std::vector<Vertex> picked;
-              cgogn::geometry::picking(*selected_mesh_, p.vertex_position_.get(), A, B, picked);
-              if(!picked.empty())
-              {
-                  p.selected_vertex_ = picked[0];
-                  p.have_selected_vertex_ = true;
-                  p.move_vertex_ = value<Vec3>(*selected_mesh_, p.vertex_position_.get(), picked[0]);
-                  p.update_move_vertex_vbo();
-                  view->request_update();
-              }
+                rendering::GLVec3d near = view->unproject(x, y, 0.0);
+                rendering::GLVec3d far = view->unproject(x, y, 1.0);
+                Vec3 A{near.x(), near.y(), near.z()};
+                Vec3 B{far.x(), far.y(), far.z()};
+                std::vector<Vertex> picked;
+                cgogn::geometry::picking(*selected_mesh_, p.vertex_position_.get(), A, B, picked);
+                if(!picked.empty())
+                {
+                    p.selected_vertex_ = picked[0];
+                    p.have_selected_vertex_ = true;
+                    p.move_vertex_ = value<Vec3>(*selected_mesh_, p.vertex_position_.get(), picked[0]);
+                    p.update_move_vertex_vbo();
+                    view->request_update();
+                }
             }
         }
     }
@@ -374,22 +357,23 @@ protected:
         }
     }
 
-float32 dt = 0.000f;
+    float32 dt = 0.000f;
+    bool k = true;
+    float incline_angle = M_PI / 6; // 30 degrees in radians
+    float incline_angle_p2 = -1*M_PI / 6;
+    //float incline_angle_p0 = 0;
+    float incline_angle_arr = M_PI / 2;
+    Vec3 speed_;
 
-bool k = true;
-float incline_angle = M_PI / 6; // 30 degrees in radians
-float incline_angle_p2 = -1*M_PI / 6;
-//float incline_angle_p0 = 0;
-float incline_angle_arr = M_PI / 2;
-Vec3 speed_;
+    //#define TIME_STEP 0.02f
 
-
-
-//#define TIME_STEP 0.02f
 
     void start()
     {
+
         running_ = true;
+
+
 
         launch_thread([this]() {
             while(this->running_)
@@ -398,7 +382,6 @@ Vec3 speed_;
                 std::cout<<"Simulation time = "<<c_t<<std::endl;
 
                 Parameters& p = parameters_[selected_mesh_];
-
 
                 for (int i = 0; i < 1; i++)
                 {
@@ -412,251 +395,246 @@ Vec3 speed_;
                         });
                     }
 
+                    //                    parallel_foreach_cell(*selected_mesh_, [&](Vertex v) -> bool {
+                    //                        Vec3& pos = value<Vec3>(*selected_mesh_, p.vertex_position_.get(), v);
+                    //                        std::cout<<"pos = "<<pos<<std::endl;
+                    //                        return true;
+                    //                    });
 
-//                    parallel_foreach_cell(*selected_mesh_, [&](Vertex v) -> bool {
-//                        Vec3& pos = value<Vec3>(*selected_mesh_, p.vertex_position_.get(), v);
-//                        std::cout<<"pos = "<<pos<<std::endl;
-//                        return true;
-//                    });
 
-
-                        if(apply_force)
+                    if(apply_force)
+                    {
+                        if(p.fixed_vertex == nullptr)
                         {
-
-                            if(p.fixed_vertex == nullptr){
-                                p.fixed_vertex = get_or_add_attribute<bool,Vertex>(*selected_mesh_,"fixed_vertex_XPBD");
-                                simu_solver.fixed_vertex = p.fixed_vertex;
-                            }
+                            p.fixed_vertex = get_or_add_attribute<bool,Vertex>(*selected_mesh_,"fixed_vertex_XPBD");
+                            simu_solver.fixed_vertex = p.fixed_vertex;
+                        }
 
 
-                        for (auto v : vertices_inferior) {
+                        for (auto v : vertices_inferior)
+                        {
                             Parameters& p = parameters_[selected_mesh_];
                             Vec3& pos = value<Vec3>(*selected_mesh_, p.vertex_position_.get(), v);
                             value<bool>(*selected_mesh_, p.fixed_vertex.get(), v) = true;
                             pos.y() -= 40;
-//                            value<Vec3>(*selected_mesh_, p.vertex_forces_, v)+=
-//                                    value<double>(*selected_mesh_, simu_solver.masse_, v) *Vec3(0, -600, 0);
-
+                            //                            value<Vec3>(*selected_mesh_, p.vertex_forces_, v)+=
+                            //                                    value<double>(*selected_mesh_, simu_solver.masse_, v) *Vec3(0, -600, 0);
                         }
 
-                        for (auto v : vertices_superior) {
+                        for (auto v : vertices_superior)
+                        {
                             Parameters& p = parameters_[selected_mesh_];
                             Vec3& pos = value<Vec3>(*selected_mesh_, p.vertex_position_.get(), v);
                             value<bool>(*selected_mesh_, p.fixed_vertex.get(), v) = true;
                             pos.y() += 40;
-//                            value<Vec3>(*selected_mesh_, p.vertex_forces_, v)+=
-//                                    value<double>(*selected_mesh_, simu_solver.masse_, v) *Vec3(0, 600, 0);
-
+                            //                            value<Vec3>(*selected_mesh_, p.vertex_forces_, v)+=
+                            //                                    value<double>(*selected_mesh_, simu_solver.masse_, v) *Vec3(0, 600, 0);
                         }
-
-
 
                         if(c_t>=0.00008)
                         {
                             apply_force = false;
                         }
+                    }
 
-                        }
                     simu_solver.solver(*selected_mesh_, TIME_STEP);
 
                     parallel_foreach_cell(*selected_mesh_, [&](Vertex v) -> bool {
                         value<Vec3>(*selected_mesh_, p.vertex_forces_, v) = Vec3(0, 0, 0);
                         return true;
                     });
-
                 }
 
-                    if(draw_cube)
-                    {
-                        Vec3 position;
-                        Vec3 axis_x = Vec3(1,0,0);
-                        Vec3 axis_y = Vec3(0, 1,0);
-                        Vec3 axis_z = Vec3(0,0,1);
-                        //p.frame_manipulator_.get_position(position);
+                if(draw_cube)
+                {
+                    Vec3 position;
+                    Vec3 axis_x = Vec3(1,0,0);
+                    Vec3 axis_y = Vec3(0, 1,0);
+                    Vec3 axis_z = Vec3(0,0,1);
+                    //p.frame_manipulator_.get_position(position);
 
-                        position = Vec3(pos_cube_ref.x(), pos_cube_ref.y(), pos_cube_ref.z());
+                    position = Vec3(pos_cube_ref.x(), pos_cube_ref.y(), pos_cube_ref.z());
 
+                    //p.frame_manipulator_.get_axis(cgogn::rendering::FrameManipulator::Xt, axis_x);
+                    //p.frame_manipulator_.get_axis(cgogn::rendering::FrameManipulator::Yt, axis_y);
+                    //p.frame_manipulator_.get_axis(cgogn::rendering::FrameManipulator::Zt, axis_z);
 
-                        //p.frame_manipulator_.get_axis(cgogn::rendering::FrameManipulator::Xt, axis_x);
-                        //p.frame_manipulator_.get_axis(cgogn::rendering::FrameManipulator::Yt, axis_y);
-                        //p.frame_manipulator_.get_axis(cgogn::rendering::FrameManipulator::Zt, axis_z);
+                    int total_vertex_count = 0;
+                    int contact_with_planes_count = 0;
 
-                        int total_vertex_count = 0;
-                        int contact_with_planes_count = 0;
+                    parallel_foreach_cell(*selected_mesh_, [&](Vertex v) -> bool {
+                        Vec3& pos = value<Vec3>(*selected_mesh_, p.vertex_position_.get(), v);
 
-                        parallel_foreach_cell(*selected_mesh_, [&](Vertex v) -> bool {
-                            Vec3& pos = value<Vec3>(*selected_mesh_, p.vertex_position_.get(), v);
- //************Plan 0degree************//
-                            Vec3 normal_p0(0, std::cos(angle), std::sin(angle));
-                            Vec3 pos_vertex_cube = pos - position_plan.cast<double>();
-                            double dist_p0 = pos_vertex_cube.dot(normal_p0)-20;
-                            double d_p0 = position.dot(normal_p0);
- //************END************//
+                        //**********Plan 0degree**********//
+                        Vec3 normal_p0(0, std::cos(angle1), std::sin(angle1));
+                        Vec3 pos_vertex_cube = pos - position_plan1.cast<double>();
+                        double dist_p0 = pos_vertex_cube.dot(normal_p0)-20;
+                        double d_p0 = position.dot(normal_p0);
+                        //**********END**********//
 
- //************Plan 30degree (inclinaison yz, x fixe)************//
-                            Vec3 normal(0, std::cos(incline_angle), std::sin(incline_angle));
-                            double dist = pos.dot(normal) + 280 / normal.norm(); // 280 = 300 - 20
-                            double d = position.dot(normal) / normal.norm();
-//************END************//
+                        //**********Plan 30degree (inclinaison yz, x fixe)**********//
+                        Vec3 normal(0, std::cos(angle1*M_PI/180), std::sin(angle1*M_PI/180));
+                        double dist = pos.dot(normal) + 280 / normal.norm(); // 280 = 300 - 20
+                        double d = position.dot(normal) / normal.norm();
+                        //**********END**********//
 
-//************Plan 150degree (inclinaison yz, x fixe)************//
-                             Vec3 normal_p2(0, std::cos(incline_angle_p2), std::sin(incline_angle_p2));
-                             double dist_p2 = pos.dot(normal_p2) + 280 / normal_p2.norm(); // 280 = 300 - 20
-                             double d_p2 = position.dot(normal_p2) / normal_p2.norm();
-//************END************//
+                        //**********Plan 150degree (inclinaison yz, x fixe)**********//
+                        Vec3 normal_p2(0, std::cos(angle2*M_PI/180), std::sin(angle2*M_PI/180));
+                        double dist_p2 = pos.dot(normal_p2) + 280 / normal_p2.norm(); // 280 = 300 - 20
+                        double d_p2 = position.dot(normal_p2) / normal_p2.norm();
+                        //**********END**********//
 
-                            speed_ = value<Vec3>(*selected_mesh_, simu_solver.speed_.get(), v);
-                            //std::cout<<"Speed = "<<speed_<<std::endl;
+                        speed_ = value<Vec3>(*selected_mesh_, simu_solver.speed_.get(), v);
+                        //std::cout<<"Speed = "<<speed_<<std::endl;
 
+                        if((fabs(speed_.dot(axis_x))>0.4 || fabs(speed_.dot(axis_y))>0.4 || fabs(speed_.dot(axis_z))>0.4) || (dt<1000))
+                        {
+                            dt+=TIME_STEP;
+                        }
 
-                            if((fabs(speed_.dot(axis_x))>0.4 || fabs(speed_.dot(axis_y))>0.4 || fabs(speed_.dot(axis_z))>0.4) || (dt<1000))
-                            {
-                                dt+=TIME_STEP;
-                            }
+                        //**********Collision Plan 0**********//
+//                        if(dist_p0<d_p0)
+//                        {
+//                            //double friction_coefficient_p0 = 1.0;
+//                            Vec3& speed_p0 = value<Vec3>(*selected_mesh_, simu_solver.speed_.get(), v);
+//                            value<Vec3>(*selected_mesh_, p.vertex_position_.get(), v) += (d_p0-dist_p0) * normal_p0;
+//                            speed_p0 -=normal_p0.dot(speed_p0) * normal_p0;
 
-//******************Collision Plan 0*************************//
-                            if(dist_p0<d_p0)
+//                            Vec3 speed_normal_p0 = normal_p0.dot(speed_p0) * normal_p0;
+//                            Vec3 speed_tangent_p0 = speed_p0 - speed_normal_p0;
 
-                            {
-                                //double friction_coefficient_p0 = 1.0;
-                                Vec3& speed_p0 = value<Vec3>(*selected_mesh_, simu_solver.speed_.get(), v);
-                                value<Vec3>(*selected_mesh_, p.vertex_position_.get(), v) += (d_p0-dist_p0) * normal_p0;
-                                speed_p0 -=normal_p0.dot(speed_p0) * normal_p0;
+//                            Vec3 friction_force_tangent_p0 = -friction_coefficient1 * speed_tangent_p0;
 
-                                Vec3 speed_normal_p0 = normal_p0.dot(speed_p0) * normal_p0;
-                                Vec3 speed_tangent_p0 = speed_p0 - speed_normal_p0;
-
-
-                                Vec3 friction_force_tangent_p0 = -friction_coefficient * speed_tangent_p0;
-
-                                speed_p0 += friction_force_tangent_p0;
-
-                            }
-//*******************END****************************//
+//                            speed_p0 += friction_force_tangent_p0;
+//                        }
+                        //**********END**********//
 
 
-//*******************Collision Deux Plans************************//
+                        //**********Collision Deux Plans**********//
 
 
-//                            total_vertex_count++;
-//                            bool collision_p1 = false;
-//                            bool collision_p2 = false;
+                                                    total_vertex_count++;
+                                                    bool collision_p1 = false;
+                                                    bool collision_p2 = false;
 
-//                            double friction_coefficient = 0.5;
-//                            double minimal_speed = 0.01;
+                                                    //double friction_coefficient = 0.5;
+                                                    double minimal_speed = 0.01;
 
-//                            Vec3& speed_ = value<Vec3>(*selected_mesh_, simu_solver.speed_.get(), v);
+                                                    Vec3& speed_ = value<Vec3>(*selected_mesh_, simu_solver.speed_.get(), v);
 
-//                            if (dist < d)
-//                            {
-//                                collision_p1 = true;
-//                                value<Vec3>(*selected_mesh_, p.vertex_position_.get(), v) += (d - dist) * normal;
+                                                    if (dist < d)
+                                                    {
+                                                        collision_p1 = true;
+                                                        value<Vec3>(*selected_mesh_, p.vertex_position_.get(), v) += (d - dist) * normal;
 
-//                                Vec3 speed_normal1 = normal.dot(speed_) * normal;
-//                                Vec3 speed_tangent1 = speed_ - speed_normal1;
+                                                        Vec3 speed_normal1 = normal.dot(speed_) * normal;
+                                                        Vec3 speed_tangent1 = speed_ - speed_normal1;
 
-//                                Vec3 friction_force_normal1 = friction_coefficient * speed_normal1;
-//                                Vec3 friction_force_tangent1 = friction_coefficient * speed_tangent1;
+                                                        Vec3 friction_force_normal1 = friction_coefficient1 * speed_normal1;
+                                                        Vec3 friction_force_tangent1 = friction_coefficient1 * speed_tangent1;
 
-//                                speed_ -= (friction_force_normal1 + friction_force_tangent1);
-//                            }
-
-
-//                            if (dist_p2 < d_p2)
-//                            {
-//                                collision_p2 = true;
-//                                value<Vec3>(*selected_mesh_, p.vertex_position_.get(), v) += (d_p2 - dist_p2) * normal_p2;
-
-//                                Vec3 speed_normal2 = normal_p2.dot(speed_) * normal_p2;
-//                                Vec3 speed_tangent2 = speed_ - speed_normal2;
-
-//                                Vec3 friction_force_normal2 = friction_coefficient * speed_normal2;
-//                                Vec3 friction_force_tangent2 = friction_coefficient * speed_tangent2;
-
-//                                speed_ -= (friction_force_normal2 + friction_force_tangent2);
-//                            }
-
-//                            if (collision_p1 || collision_p2)
-//                            {
-//                                  contact_with_planes_count++;
-//                            }
-
-//                            if (collision_p1 && collision_p2 && speed_.norm() < minimal_speed) {
-//                                Vec3 speed_normal1 = normal.dot(speed_) * normal;
-//                                Vec3 speed_normal2 = normal_p2.dot(speed_) * normal_p2;
-
-//                                Vec3 friction_force_normal1 = friction_coefficient * speed_normal1;
-//                                Vec3 friction_force_normal2 = friction_coefficient * speed_normal2;
-
-//                                speed_ -= (friction_force_normal1 + friction_force_normal2);
-
-//                                if (speed_.norm() < minimal_speed) {
-//                                    speed_ = Vec3(0, 0, 0);
-//                                }
-//                            }
-
-                            //*******************END************************//
-
-                            return true;
-                         });//END parallel_foreach_cell
-
-//                        double percentage_in_contact = (static_cast<double>(contact_with_planes_count) / total_vertex_count) * 100.0;
-//                        std::cout << "Pourcentage des vertex en contact avec les deux plans: " << percentage_in_contact << "%" << std::endl;
+                                                        speed_ -= (friction_force_normal1 + friction_force_tangent1);
+                                                    }
 
 
-//**************find energy********************//
-                        double PSI_NEO =0;
-                        double h = NUM_SUBSTEP / TIME_STEP;
-                        foreach_cell(*selected_mesh_, [&](Volume v) -> bool {
+                                                    if (dist_p2 < d_p2)
+                                                    {
+                                                        collision_p2 = true;
+                                                        value<Vec3>(*selected_mesh_, p.vertex_position_.get(), v) += (d_p2 - dist_p2) * normal_p2;
+
+                                                        Vec3 speed_normal2 = normal_p2.dot(speed_) * normal_p2;
+                                                        Vec3 speed_tangent2 = speed_ - speed_normal2;
+
+                                                        Vec3 friction_force_normal2 = friction_coefficient2 * speed_normal2;
+                                                        Vec3 friction_force_tangent2 = friction_coefficient2 * speed_tangent2;
+
+                                                        speed_ -= (friction_force_normal2 + friction_force_tangent2);
+                                                    }
+
+                                                    if (collision_p1 || collision_p2)
+                                                    {
+                                                          contact_with_planes_count++;
+                                                    }
+
+                                                    if (collision_p1 && collision_p2 && speed_.norm() < minimal_speed) {
+                                                        Vec3 speed_normal1 = normal.dot(speed_) * normal;
+                                                        Vec3 speed_normal2 = normal_p2.dot(speed_) * normal_p2;
+
+                                                        Vec3 friction_force_normal1 = friction_coefficient1 * speed_normal1;
+                                                        Vec3 friction_force_normal2 = friction_coefficient2 * speed_normal2;
+
+                                                        speed_ -= (friction_force_normal1 + friction_force_normal2);
+
+                        //                                if (speed_.norm() < minimal_speed) {
+                        //                                    speed_ = Vec3(0, 0, 0);
+                        //                                }
+                                                    }
+
+                        //**********END**********//
+
+                        return true;
+                    });//END parallel_foreach_cell
+
+                    //                        double percentage_in_contact = (static_cast<double>(contact_with_planes_count) / total_vertex_count) * 100.0;
+                    //                        std::cout << "Pourcentage des vertex en contact avec les deux plans: " << percentage_in_contact << "%" << std::endl;
+
+
+                    //**********find energy**********//
+                    double PSI_NEO =0;
+                    double h = NUM_SUBSTEP / TIME_STEP;
+
+                    foreach_cell(*selected_mesh_, [&](Volume v) -> bool {
                         PSI_NEO += simu_solver.energy_calculation(*selected_mesh_, v, h);
                         return true;
-                          });
-                        //std::cout << "Energie = " << PSI_NEO << std::endl;
-                        std::ofstream csv_file(csv_data, std::ios::app);
-                        if (csv_file.is_open())
-                        {
-                            csv_file << c_t << "," << PSI_NEO << std::endl;
-                        }
-                         csv_file.close();
-//**************END********************//
+                    });
+
+                    //std::cout << "Energie = " << PSI_NEO << std::endl;
+
+                    std::ofstream csv_file(csv_data_energy, std::ios::app);
+                    if (csv_file.is_open())
+                    {
+                        csv_file << c_t << "," << PSI_NEO << std::endl;
+                    }
+                    csv_file.close();
+                    //**********END**********//
 
 
-//**************find centre de masse position********************//
-                         double total_mass = 0.0;
-                         Vec3 weighted_sum = Vec3::Zero();
+                    //**********find centre de masse position**********//
+                    double total_mass = 0.0;
+                    Vec3 weighted_sum = Vec3::Zero();
 
-                         foreach_cell(*selected_mesh_, [&](Vertex w) -> bool {
-                         double vertex_mass = value<double>(*selected_mesh_, simu_solver.masse_, w);
-                         Vec3 vertex_position = value<Vec3>(*selected_mesh_, p.vertex_position_.get(), w);
+                    foreach_cell(*selected_mesh_, [&](Vertex w) -> bool {
+                        double vertex_mass = value<double>(*selected_mesh_, simu_solver.masse_, w);
+                        Vec3 vertex_position = value<Vec3>(*selected_mesh_, p.vertex_position_.get(), w);
 
-                         total_mass += vertex_mass;
-                         weighted_sum += vertex_mass * vertex_position;
+                        total_mass += vertex_mass;
+                        weighted_sum += vertex_mass * vertex_position;
 
-                         return true;
-                         });
+                        return true;
+                    });
 
-                         Vec3 cm = weighted_sum / total_mass;
+                    Vec3 cm = weighted_sum / total_mass;
 
-                         std::ofstream csv_file_(csv_data_position, std::ios::app);
-                         if (csv_file_.is_open())
-                         {
-                             csv_file_ << c_t << "," << cm.dot(axis_y)-20 << std::endl;
-                         }
-                          csv_file_.close();
-//**************END********************//
+                    std::ofstream csv_file_(csv_data_position, std::ios::app);
+                    if (csv_file_.is_open())
+                    {
+                        csv_file_ << c_t << "," << cm.dot(axis_y)+320 << std::endl;
+                    }
+                    csv_file_.close();
+                    //**********END**********//
 
-//**************stop condition********************//
-                           if(static_cast<int>(c_t)==400)
-                           {
-                                std::cout<<"Temps de convergence = "<<dt<<std::endl;
+                    //**********stop condition**********//
+                    if(static_cast<int>(c_t)==40)
+                    {
+                        //std::cout<<"Temps de convergence = "<<dt<<std::endl;
 
-                                running_ = false;
-                                exit(EXIT_SUCCESS);
+                        running_ = false;
+                        exit(EXIT_SUCCESS);
 
-                                dt = 0;
-                                c_t = 0;
-                            }
-                     }
+                        dt = 0;
+                        c_t = 0;
+                    }
+                }
                 need_update_ = true;
             }
         });
@@ -667,8 +645,7 @@ Vec3 speed_;
         running_ = false;
     }
 
-
-//************Draw Plan************//
+    //**********Draw Plan**********//
     void draw(ui::View *view) override
     {
         const rendering::GLMat4& proj_matrix = view->projection_matrix();
@@ -703,93 +680,88 @@ Vec3 speed_;
             }
 
 
-//                Eigen::Vector3f bb_min = Eigen::Vector3f(md.bb_min_.x()+md.bb_max_.x()/2,
-//                                                         md.bb_min_.y()-10,
-//                                                         md.bb_min_.z()+md.bb_max_.z()/2);
-//                Eigen::Vector3f bb_max = Eigen::Vector3f(md.bb_max_.x()-md.bb_max_.x()/2,
-//                                                         md.bb_max_.y()+10,
-//                                                         md.bb_max_.z()-md.bb_max_.z()/2);
-//                bbmin = bb_min;
-//                bbmax = bb_max;
+            //                Eigen::Vector3f bb_min = Eigen::Vector3f(md.bb_min_.x()+md.bb_max_.x()/2,
+            //                                                         md.bb_min_.y()-10,
+            //                                                         md.bb_min_.z()+md.bb_max_.z()/2);
+            //                Eigen::Vector3f bb_max = Eigen::Vector3f(md.bb_max_.x()-md.bb_max_.x()/2,
+            //                                                         md.bb_max_.y()+10,
+            //                                                         md.bb_max_.z()-md.bb_max_.z()/2);
+            //                bbmin = bb_min;
+            //                bbmax = bb_max;
 
-//                std::cout<<"bb min = "<<bbmin<<std::endl;
-//                std::cout<<"bb max = "<<bbmax<<std::endl;
-//                std::cout<<"min ="<<md.bb_min_.x()<<", "<<md.bb_min_.y()<<", "<<md.bb_min_.z()<<std::endl;
-//                std::cout<<"max ="<<md.bb_max_.x()<<", "<<md.bb_max_.y()<<", "<<md.bb_max_.z()<<std::endl;
+            //                std::cout<<"bb min = "<<bbmin<<std::endl;
+            //                std::cout<<"bb max = "<<bbmax<<std::endl;
+            //                std::cout<<"min ="<<md.bb_min_.x()<<", "<<md.bb_min_.y()<<", "<<md.bb_min_.z()<<std::endl;
+            //                std::cout<<"max ="<<md.bb_max_.x()<<", "<<md.bb_max_.y()<<", "<<md.bb_max_.z()<<std::endl;
 
-           }
-//            Eigen::Vector3f pos_cube_ (0, 30, 0) ;
-//            Eigen::Affine3f transfo0 = Eigen::Translation3f(bbmin+pos_cube_)*Eigen::Scaling(size_cube);
-//            shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * transfo0.matrix());
+        }
+        //            Eigen::Vector3f pos_cube_ (0, 30, 0) ;
+        //            Eigen::Affine3f transfo0 = Eigen::Translation3f(bbmin+pos_cube_)*Eigen::Scaling(size_cube);
+        //            shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * transfo0.matrix());
 
-//            Eigen::Affine3f transfo1 = Eigen::Translation3f(bbmax-pos_cube_)*Eigen::Scaling(size_cube);
-//            shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * transfo1.matrix());
+        //            Eigen::Affine3f transfo1 = Eigen::Translation3f(bbmax-pos_cube_)*Eigen::Scaling(size_cube);
+        //            shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * transfo1.matrix());
 
-//            foreach_cell(*selected_mesh_, [&](Vertex v) -> bool {
-//                Parameters& p = parameters_[selected_mesh_];
-//                Vec3& pos = value<Vec3>(*selected_mesh_, p.vertex_position_.get(), v);
+        //            foreach_cell(*selected_mesh_, [&](Vertex v) -> bool {
+        //                Parameters& p = parameters_[selected_mesh_];
+        //                Vec3& pos = value<Vec3>(*selected_mesh_, p.vertex_position_.get(), v);
 
-//                if (pos.y() <= (bbmin.y()+10)+20 && pos.y() >= bbmin.y()+10)
-//                {
-//                    vertices_inferior.push_back(v);
-//                }
+        //                if (pos.y() <= (bbmin.y()+10)+20 && pos.y() >= bbmin.y()+10)
+        //                {
+        //                    vertices_inferior.push_back(v);
+        //                }
 
-//                if (pos.y() <= bbmax.y()-10 && pos.y() >= (bbmax.y()-10)-20)
-//                {
-//                    vertices_superior.push_back(v);
-//                }
+        //                if (pos.y() <= bbmax.y()-10 && pos.y() >= (bbmax.y()-10)-20)
+        //                {
+        //                    vertices_superior.push_back(v);
+        //                }
 
-//                return true;
-//            });
+        //                return true;
+        //            });
 
 
-//************Draw Plan ref************//
-//                Eigen::Affine3f transfo0 = Eigen::Translation3f(pos_cube_ref)*Eigen::Scaling(size_cube_ref);
-//                shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * transfo0.matrix());
-//************END************//
+        //**********Draw Plan ref**********//
+        //                Eigen::Affine3f transfo0 = Eigen::Translation3f(pos_cube_ref)*Eigen::Scaling(size_cube_ref);
+        //                shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * transfo0.matrix());
+        //**********END**********//
 
-//************Draw Plan arr************//
-//                   Eigen::Matrix3f rotation_matrix_arr;
-//                   rotation_matrix_arr = Eigen::AngleAxisf(incline_angle_arr, Eigen::Vector3f::UnitX());
-//                   Eigen::Affine3f incline_transformation_arr = Eigen::Affine3f::Identity();
-//                   incline_transformation_arr.rotate(rotation_matrix_arr);
-//                   Eigen::Affine3f transfo_arr = Eigen::Translation3f(pos_cube_arr)*Eigen::Scaling(size_cube_arr);
-//                   Eigen::Affine3f final_transformation_arr = incline_transformation_arr * transfo_arr;
-//                   shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * final_transformation_arr.matrix());
-//************END************//
+        //**********Draw Plan arr**********//
+        //                   Eigen::Matrix3f rotation_matrix_arr;
+        //                   rotation_matrix_arr = Eigen::AngleAxisf(incline_angle_arr, Eigen::Vector3f::UnitX());
+        //                   Eigen::Affine3f incline_transformation_arr = Eigen::Affine3f::Identity();
+        //                   incline_transformation_arr.rotate(rotation_matrix_arr);
+        //                   Eigen::Affine3f transfo_arr = Eigen::Translation3f(pos_cube_arr)*Eigen::Scaling(size_cube_arr);
+        //                   Eigen::Affine3f final_transformation_arr = incline_transformation_arr * transfo_arr;
+        //                   shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * final_transformation_arr.matrix());
+        //**********END**********//
 
-//************Draw Plan 0degree************//
-                   Eigen::Affine3f transfo0 = Eigen::Translation3f(position_plan)*Eigen::Scaling(dimension);
-                   shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * transfo0.matrix());
-//************END************//
+        //**********Draw Plan 0degree**********//
+//        Eigen::Affine3f transfo0 = Eigen::Translation3f(position_plan1)*Eigen::Scaling(dimension1);
+//        shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * transfo0.matrix());
+        //**********END**********//
 
-//************Draw Plan 30degree************//
-//            Eigen::Matrix3f rotation_matrix;
-//            rotation_matrix = Eigen::AngleAxisf(incline_angle, Eigen::Vector3f::UnitX());
-//            Eigen::Affine3f incline_transformation = Eigen::Affine3f::Identity();
-//            incline_transformation.rotate(rotation_matrix);
-//            Eigen::Affine3f transfo = Eigen::Translation3f(pos_cube)*Eigen::Scaling(size_cube);
-//            Eigen::Affine3f final_transformation = incline_transformation * transfo;
-//            shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * final_transformation.matrix());
-//************END************//
+        //**********Draw Plan 30degree**********//
+                    Eigen::Matrix3f rotation_matrix;
+                    rotation_matrix = Eigen::AngleAxisf(incline_angle, Eigen::Vector3f::UnitX());
+                    Eigen::Affine3f incline_transformation = Eigen::Affine3f::Identity();
+                    incline_transformation.rotate(rotation_matrix);
+                    Eigen::Affine3f transfo = Eigen::Translation3f(position_plan1)*Eigen::Scaling(dimension1);
+                    Eigen::Affine3f final_transformation = incline_transformation * transfo;
+                    shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * final_transformation.matrix());
+        //**********END**********//
 
-//************Draw Plan 150degree************//
-//            Eigen::Matrix3f rotation_matrix_p2;
-//            rotation_matrix_p2 = Eigen::AngleAxisf(incline_angle_p2, Eigen::Vector3f::UnitX());
-//            Eigen::Affine3f incline_transformation_p2 = Eigen::Affine3f::Identity();
-//            incline_transformation_p2.rotate(rotation_matrix_p2);
-//            Eigen::Affine3f transfo_p2 = Eigen::Translation3f(pos_cube)*Eigen::Scaling(size_cube);
-//            Eigen::Affine3f final_transformation_p2 = incline_transformation_p2 * transfo_p2;
-//            shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * final_transformation_p2.matrix());
-//************END************//
+        //**********Draw Plan 150degree**********//
+                    Eigen::Matrix3f rotation_matrix_p2;
+                    rotation_matrix_p2 = Eigen::AngleAxisf(incline_angle_p2, Eigen::Vector3f::UnitX());
+                    Eigen::Affine3f incline_transformation_p2 = Eigen::Affine3f::Identity();
+                    incline_transformation_p2.rotate(rotation_matrix_p2);
+                    Eigen::Affine3f transfo_p2 = Eigen::Translation3f(position_plan2)*Eigen::Scaling(dimension2);
+                    Eigen::Affine3f final_transformation_p2 = incline_transformation_p2 * transfo_p2;
+                    shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * final_transformation_p2.matrix());
+        //**********END**********//
 
     }
-//************END************//
-
-
-    //
-    //********************************************************************************************************************************//
-
+    //**********END draw**********//
 
     void left_panel() override
     {
@@ -815,7 +787,7 @@ Vec3 speed_;
         {
             mesh_provider_->foreach_mesh([this](MESH& m, const std::string& name) {
                 if (ImGui::Selectable(name.c_str(), &m == selected_mesh_))
-               {
+                {
                     selected_mesh_ = &m;
                     Parameters& p = parameters_[selected_mesh_];
                     p.fixed_vertex = get_attribute<bool, Vertex>(m, "fixed_vertex");
@@ -839,12 +811,12 @@ Vec3 speed_;
             {
                 foreach_attribute<Vec3, Vertex>(*selected_mesh_,
                                                 [&](const std::shared_ptr<Attribute<Vec3>>& attribute) {
-                                                    bool is_selected = attribute == p.vertex_position_;
-                                                    if (ImGui::Selectable(attribute->name().c_str(), is_selected))
-                                                        set_vertex_position(*selected_mesh_, attribute);
-                                                    if (is_selected)
-                                                        ImGui::SetItemDefaultFocus();
-                                                });
+                    bool is_selected = attribute == p.vertex_position_;
+                    if (ImGui::Selectable(attribute->name().c_str(), is_selected))
+                        set_vertex_position(*selected_mesh_, attribute);
+                    if (is_selected)
+                        ImGui::SetItemDefaultFocus();
+                });
 
                 ImGui::EndCombo();
             }
@@ -854,6 +826,7 @@ Vec3 speed_;
                 if (ImGui::Button("X##position"))
                     set_vertex_position(*selected_mesh_, nullptr);
             }
+
             if (p.vertex_position_)
             {
                 ImGui::Separator();
@@ -867,7 +840,6 @@ Vec3 speed_;
                     {
                         start();
                     }
-
                 }
                 else
                 {
@@ -882,19 +854,15 @@ Vec3 speed_;
 
                     mesh_provider_->emit_attribute_changed(*selected_mesh_, p.vertex_position_.get());
 
-
                     need_update_ = false;
                 }
             }
         }
     }
-  //--------------------------------------------------------------------------------------------------------------------------------//
 
 public:
     MESH* selected_mesh_;
-
     std::vector<Volume> vec_volume;
-
     std::unordered_map<const MESH*, Parameters> parameters_;
     cgogn::simulation::XPBD<MESH> simu_solver;
     View* selected_view_;
@@ -902,31 +870,23 @@ public:
     bool apply_gravity;
     bool apply_force;
     bool draw_cube;
-//  Eigen::Vector3f pos_cube;
-//  Eigen::Vector3f size_cube;
+    //  Eigen::Vector3f pos_cube;
+    //  Eigen::Vector3f size_cube;
     Eigen::Vector3f size_cube_ref;
     Eigen::Vector3f size_cube_arr;
     Eigen::Vector3f pos_cube_ref;
     Eigen::Vector3f pos_cube_arr;
     Vec3 Zaxis_cube;
-
     rendering::ShapeDrawer* shape_;
-
     float32 c_t;
-    //
-    //********************************************************************************************************************************//
 
     std::vector<std::shared_ptr<boost::synapse::connection>> connections_;
     std::unordered_map<const MESH*, std::vector<std::shared_ptr<boost::synapse::connection>>> mesh_connections_;
     MeshProvider<MESH>* mesh_provider_;
     bool need_update_;
-
-    //--------------------------------------------------------------------------------------------------------------------------------//
-
 };
 
 } // namespace ui
-
 } // namespace cgogn
 
 #endif // CGOGN_MODULE_XPBD_MODULE_H_

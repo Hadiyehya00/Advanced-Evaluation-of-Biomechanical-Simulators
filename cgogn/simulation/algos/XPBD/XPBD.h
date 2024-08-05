@@ -27,10 +27,15 @@ int YOUNG_MODULUS;
 float TIME_STEP;
 
 
-Eigen::Vector3f position_plan;
-Eigen::Vector3f dimension;
-int angle;
-float friction_coefficient;
+Eigen::Vector3f position_plan1;
+Eigen::Vector3f dimension1;
+int angle1;
+float friction_coefficient1;
+
+Eigen::Vector3f position_plan2;
+Eigen::Vector3f dimension2;
+int angle2;
+float friction_coefficient2;
 
 Eigen::Vector3f pos_cube;
 Eigen::Vector3f size_cube;
@@ -65,27 +70,50 @@ void setTimeStep(float time_step_){
 //    size_cube.z() = depth_;
 //}
 
-void setPosition(int position_x, int position_y, int position_z)
+//void setPosition(int position_x, int position_y, int position_z)
+//{
+//    position_plan.x() = position_x;
+//    position_plan.y() = position_y;
+//    position_plan.z() = position_z;
+//}
+
+//void setDimension(int dimension_x, int dimension_y, int dimension_z)
+//{
+//    dimension.x() = dimension_x;
+//    dimension.y() = dimension_y;
+//    dimension.z() = dimension_z;
+//}
+
+//void setAngle(int angle_){
+//    angle = angle_;
+//}
+//void setFrictionCoef(float friction_coef_){
+//    friction_coefficient = friction_coef_;
+//}
+
+void setPlan1(int position_x1, int position_y1, int position_z1, int dimension_x1, int dimension_y1, int dimension_z1, int angle_1, float friction_coef_1)
 {
-    position_plan.x() = position_x;
-    position_plan.y() = position_y;
-    position_plan.z() = position_z;
+    position_plan1.x() = position_x1;
+    position_plan1.y() = position_y1;
+    position_plan1.z() = position_z1;
+    dimension1.x() = dimension_x1;
+    dimension1.y() = dimension_y1;
+    dimension1.z() = dimension_z1;
+    angle1 = angle_1;
+    friction_coefficient1 = friction_coef_1;
 }
 
-void setDimension(int dimension_x, int dimension_y, int dimension_z)
+void setPlan2(int position_x2, int position_y2, int position_z2, int dimension_x2, int dimension_y2, int dimension_z2, int angle_2, float friction_coef_2)
 {
-    dimension.x() = dimension_x;
-    dimension.y() = dimension_y;
-    dimension.z() = dimension_z;
+    position_plan2.x() = position_x2;
+    position_plan2.y() = position_y2;
+    position_plan2.z() = position_z2;
+    dimension2.x() = dimension_x2;
+    dimension2.y() = dimension_y2;
+    dimension2.z() = dimension_z2;
+    angle2 = angle_2;
+    friction_coefficient2 = friction_coef_2;
 }
-
-void setAngle(int angle_){
-    angle = angle_;
-}
-void setFrictionCoef(float friction_coef_){
-    friction_coefficient = friction_coef_;
-}
-
 
 std::string csv_data_energy;
 std::string csv_data_position;
