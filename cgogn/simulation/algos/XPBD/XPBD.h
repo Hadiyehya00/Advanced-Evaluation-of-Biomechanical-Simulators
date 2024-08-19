@@ -38,7 +38,7 @@ int angle2;
 float friction_coefficient2;
 
 Eigen::Vector3f pos_cube;
-Eigen::Vector3f size_cube;
+//Eigen::Vector3f size_cube;
 
 Eigen::Vector3f bbmin;
 Eigen::Vector3f bbmax;
