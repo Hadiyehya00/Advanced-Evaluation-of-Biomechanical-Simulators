@@ -125,7 +125,7 @@ class SimXPBD : public ViewModule
 
 public:
     SimXPBD(const App& app) : ViewModule(app, "Cube Simulation"), selected_view_(app.current_view()), running_(false),
-        apply_gravity(true), apply_force(false), shape_(nullptr), draw_cube(true),
+        apply_gravity(false), apply_force(true), shape_(nullptr), draw_cube(true),
         size_cube_ref(550, 1, 550), size_cube_arr(1200, 1, 1200), pos_cube_ref(0,0,0), pos_cube_arr(0,-200,0), Zaxis_cube(0, 1, 0), c_t(0.000f)
     {
 
@@ -277,6 +277,7 @@ public:
 
     void startSimulation()
     {
+
         mesh_provider_->foreach_mesh([this](MESH& m, const std::string& name) {
             selected_mesh_ = &m;
         });
@@ -416,7 +417,7 @@ protected:
                             Parameters& p = parameters_[selected_mesh_];
                             Vec3& pos = value<Vec3>(*selected_mesh_, p.vertex_position_.get(), v);
                             value<bool>(*selected_mesh_, p.fixed_vertex.get(), v) = true;
-                            pos.y() -= 40;
+                            pos.y() -= 0.002;
                             //                            value<Vec3>(*selected_mesh_, p.vertex_forces_, v)+=
                             //                                    value<double>(*selected_mesh_, simu_solver.masse_, v) *Vec3(0, -600, 0);
                         }
@@ -426,12 +427,12 @@ protected:
                             Parameters& p = parameters_[selected_mesh_];
                             Vec3& pos = value<Vec3>(*selected_mesh_, p.vertex_position_.get(), v);
                             value<bool>(*selected_mesh_, p.fixed_vertex.get(), v) = true;
-                            pos.y() += 40;
+                            pos.y() += 0.002;
                             //                            value<Vec3>(*selected_mesh_, p.vertex_forces_, v)+=
                             //                                    value<double>(*selected_mesh_, simu_solver.masse_, v) *Vec3(0, 600, 0);
                         }
 
-                        if(c_t>=0.00008)
+                        if(c_t>=500)
                         {
                             apply_force = false;
                         }
@@ -513,70 +514,71 @@ protected:
                         //**********Collision Deux Plans**********//
 
 
-                                                    total_vertex_count++;
-                                                    bool collision_p1 = false;
-                                                    bool collision_p2 = false;
+//                                                    total_vertex_count++;
+//                                                    bool collision_p1 = false;
+//                                                    bool collision_p2 = false;
 
-                                                    //double friction_coefficient = 0.5;
-                                                    double minimal_speed = 0.01;
+//                                                    //double friction_coefficient = 0.5;
+//                                                    double minimal_speed = 0.01;
 
-                                                    Vec3& speed_ = value<Vec3>(*selected_mesh_, simu_solver.speed_.get(), v);
+//                                                    Vec3& speed_ = value<Vec3>(*selected_mesh_, simu_solver.speed_.get(), v);
 
-                                                    if (dist < d)
-                                                    {
-                                                        collision_p1 = true;
-                                                        value<Vec3>(*selected_mesh_, p.vertex_position_.get(), v) += (d - dist) * normal;
+//                                                    if (dist < d)
+//                                                    {
+//                                                        collision_p1 = true;
+//                                                        value<Vec3>(*selected_mesh_, p.vertex_position_.get(), v) += (d - dist) * normal;
 
-                                                        Vec3 speed_normal1 = normal.dot(speed_) * normal;
-                                                        Vec3 speed_tangent1 = speed_ - speed_normal1;
+//                                                        Vec3 speed_normal1 = normal.dot(speed_) * normal;
+//                                                        Vec3 speed_tangent1 = speed_ - speed_normal1;
 
-                                                        Vec3 friction_force_normal1 = friction_coefficient1 * speed_normal1;
-                                                        Vec3 friction_force_tangent1 = friction_coefficient1 * speed_tangent1;
+//                                                        Vec3 friction_force_normal1 = friction_coefficient1 * speed_normal1;
+//                                                        Vec3 friction_force_tangent1 = friction_coefficient1 * speed_tangent1;
 
-                                                        speed_ -= (friction_force_normal1 + friction_force_tangent1);
-                                                    }
+//                                                        speed_ -= (friction_force_normal1 + friction_force_tangent1);
+//                                                    }
 
 
-                                                    if (dist_p2 < d_p2)
-                                                    {
-                                                        collision_p2 = true;
-                                                        value<Vec3>(*selected_mesh_, p.vertex_position_.get(), v) += (d_p2 - dist_p2) * normal_p2;
+//                                                    if (dist_p2 < d_p2)
+//                                                    {
+//                                                        collision_p2 = true;
+//                                                        value<Vec3>(*selected_mesh_, p.vertex_position_.get(), v) += (d_p2 - dist_p2) * normal_p2;
 
-                                                        Vec3 speed_normal2 = normal_p2.dot(speed_) * normal_p2;
-                                                        Vec3 speed_tangent2 = speed_ - speed_normal2;
+//                                                        Vec3 speed_normal2 = normal_p2.dot(speed_) * normal_p2;
+//                                                        Vec3 speed_tangent2 = speed_ - speed_normal2;
 
-                                                        Vec3 friction_force_normal2 = friction_coefficient2 * speed_normal2;
-                                                        Vec3 friction_force_tangent2 = friction_coefficient2 * speed_tangent2;
+//                                                        Vec3 friction_force_normal2 = friction_coefficient2 * speed_normal2;
+//                                                        Vec3 friction_force_tangent2 = friction_coefficient2 * speed_tangent2;
 
-                                                        speed_ -= (friction_force_normal2 + friction_force_tangent2);
-                                                    }
+//                                                        speed_ -= (friction_force_normal2 + friction_force_tangent2);
+//                                                    }
 
-                                                    if (collision_p1 || collision_p2)
-                                                    {
-                                                          contact_with_planes_count++;
-                                                    }
+//                                                    if (collision_p1 || collision_p2)
+//                                                    {
+//                                                          contact_with_planes_count++;
+//                                                    }
 
-                                                    if (collision_p1 && collision_p2 && speed_.norm() < minimal_speed) {
-                                                        Vec3 speed_normal1 = normal.dot(speed_) * normal;
-                                                        Vec3 speed_normal2 = normal_p2.dot(speed_) * normal_p2;
+//                                                    if (collision_p1 && collision_p2 && speed_.norm() < minimal_speed) {
+//                                                        Vec3 speed_normal1 = normal.dot(speed_) * normal;
+//                                                        Vec3 speed_normal2 = normal_p2.dot(speed_) * normal_p2;
 
-                                                        Vec3 friction_force_normal1 = friction_coefficient1 * speed_normal1;
-                                                        Vec3 friction_force_normal2 = friction_coefficient2 * speed_normal2;
+//                                                        Vec3 friction_force_normal1 = friction_coefficient1 * speed_normal1;
+//                                                        Vec3 friction_force_normal2 = friction_coefficient2 * speed_normal2;
 
-                                                        speed_ -= (friction_force_normal1 + friction_force_normal2);
+//                                                        speed_ -= (friction_force_normal1 + friction_force_normal2);
 
                         //                                if (speed_.norm() < minimal_speed) {
                         //                                    speed_ = Vec3(0, 0, 0);
                         //                                }
-                                                    }
+                                                   // }
 
                         //**********END**********//
 
                         return true;
                     });//END parallel_foreach_cell
 
-                    //                        double percentage_in_contact = (static_cast<double>(contact_with_planes_count) / total_vertex_count) * 100.0;
-                    //                        std::cout << "Pourcentage des vertex en contact avec les deux plans: " << percentage_in_contact << "%" << std::endl;
+                    double percentage_in_contact = (static_cast<double>(contact_with_planes_count) / total_vertex_count) * 100.0;
+                    //std::cout << "Pourcentage des vertex en contact avec les deux plans: " << percentage_in_contact << "%" << std::endl;
+
 
 
                     //**********find energy**********//
@@ -615,16 +617,26 @@ protected:
 
                     Vec3 cm = weighted_sum / total_mass;
 
+//                    std::ofstream csv_file_(csv_data_position, std::ios::app);
+//                    if (csv_file_.is_open())
+//                    {
+//                        csv_file_ << c_t << "," << cm.dot(axis_y)+320 << std::endl;
+//                    }
+//                    csv_file_.close();
+
+                    //percentage
+                    std::cout << "y = " << bbmax.y()-bbmin.y() - 320;
                     std::ofstream csv_file_(csv_data_position, std::ios::app);
                     if (csv_file_.is_open())
                     {
-                        csv_file_ << c_t << "," << cm.dot(axis_y)+320 << std::endl;
+                        //csv_file_ << c_t << "," << percentage_in_contact << std::endl;
+                        csv_file_ << c_t << "," << bbmax.y()-bbmin.y() << std::endl;
                     }
                     csv_file_.close();
                     //**********END**********//
 
                     //**********stop condition**********//
-                    if(static_cast<int>(c_t)==40)
+                    if(static_cast<int>(c_t)==100)
                     {
                         //std::cout<<"Temps de convergence = "<<dt<<std::endl;
 
@@ -680,44 +692,45 @@ protected:
             }
 
 
-            //                Eigen::Vector3f bb_min = Eigen::Vector3f(md.bb_min_.x()+md.bb_max_.x()/2,
-            //                                                         md.bb_min_.y()-10,
-            //                                                         md.bb_min_.z()+md.bb_max_.z()/2);
-            //                Eigen::Vector3f bb_max = Eigen::Vector3f(md.bb_max_.x()-md.bb_max_.x()/2,
-            //                                                         md.bb_max_.y()+10,
-            //                                                         md.bb_max_.z()-md.bb_max_.z()/2);
-            //                bbmin = bb_min;
-            //                bbmax = bb_max;
+                            Eigen::Vector3f bb_min = Eigen::Vector3f(md.bb_min_.x()+md.bb_max_.x()/2,
+                                                                     md.bb_min_.y()-10,
+                                                                     md.bb_min_.z()+md.bb_max_.z()/2);
+                            Eigen::Vector3f bb_max = Eigen::Vector3f(md.bb_max_.x()-md.bb_max_.x()/2,
+                                                                     md.bb_max_.y()+10,
+                                                                     md.bb_max_.z()-md.bb_max_.z()/2);
+                            bbmin = bb_min;
+                            bbmax = bb_max;
 
-            //                std::cout<<"bb min = "<<bbmin<<std::endl;
-            //                std::cout<<"bb max = "<<bbmax<<std::endl;
-            //                std::cout<<"min ="<<md.bb_min_.x()<<", "<<md.bb_min_.y()<<", "<<md.bb_min_.z()<<std::endl;
-            //                std::cout<<"max ="<<md.bb_max_.x()<<", "<<md.bb_max_.y()<<", "<<md.bb_max_.z()<<std::endl;
+//                            std::cout<<"bb min = "<<bbmin<<std::endl;
+//                            std::cout<<"bb max = "<<bbmax<<std::endl;
+//                            std::cout<<"min ="<<md.bb_min_.x()<<", "<<md.bb_min_.y()<<", "<<md.bb_min_.z()<<std::endl;
+//                            std::cout<<"max ="<<md.bb_max_.x()<<", "<<md.bb_max_.y()<<", "<<md.bb_max_.z()<<std::endl;
 
         }
-        //            Eigen::Vector3f pos_cube_ (0, 30, 0) ;
-        //            Eigen::Affine3f transfo0 = Eigen::Translation3f(bbmin+pos_cube_)*Eigen::Scaling(size_cube);
-        //            shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * transfo0.matrix());
+                    Eigen::Vector3f pos_cube_ (0, 30, 0) ;
+                    Eigen::Vector3f size_cube_ (300, 10, 300) ;
+                    Eigen::Affine3f transfo0 = Eigen::Translation3f(bbmin+pos_cube_)*Eigen::Scaling(size_cube_);
+                    shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * transfo0.matrix());
 
-        //            Eigen::Affine3f transfo1 = Eigen::Translation3f(bbmax-pos_cube_)*Eigen::Scaling(size_cube);
-        //            shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * transfo1.matrix());
+                    Eigen::Affine3f transfo1 = Eigen::Translation3f(bbmax-pos_cube_)*Eigen::Scaling(size_cube_);
+                    shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * transfo1.matrix());
 
-        //            foreach_cell(*selected_mesh_, [&](Vertex v) -> bool {
-        //                Parameters& p = parameters_[selected_mesh_];
-        //                Vec3& pos = value<Vec3>(*selected_mesh_, p.vertex_position_.get(), v);
+                    foreach_cell(*selected_mesh_, [&](Vertex v) -> bool {
+                        Parameters& p = parameters_[selected_mesh_];
+                        Vec3& pos = value<Vec3>(*selected_mesh_, p.vertex_position_.get(), v);
 
-        //                if (pos.y() <= (bbmin.y()+10)+20 && pos.y() >= bbmin.y()+10)
-        //                {
-        //                    vertices_inferior.push_back(v);
-        //                }
+                        if (pos.y() <= (bbmin.y()+10)+20 && pos.y() >= bbmin.y()+10)
+                        {
+                            vertices_inferior.push_back(v);
+                        }
 
-        //                if (pos.y() <= bbmax.y()-10 && pos.y() >= (bbmax.y()-10)-20)
-        //                {
-        //                    vertices_superior.push_back(v);
-        //                }
+                        if (pos.y() <= bbmax.y()-10 && pos.y() >= (bbmax.y()-10)-20)
+                        {
+                            vertices_superior.push_back(v);
+                        }
 
-        //                return true;
-        //            });
+                        return true;
+                    });
 
 
         //**********Draw Plan ref**********//
@@ -741,23 +754,23 @@ protected:
         //**********END**********//
 
         //**********Draw Plan 30degree**********//
-                    Eigen::Matrix3f rotation_matrix;
-                    rotation_matrix = Eigen::AngleAxisf(incline_angle, Eigen::Vector3f::UnitX());
-                    Eigen::Affine3f incline_transformation = Eigen::Affine3f::Identity();
-                    incline_transformation.rotate(rotation_matrix);
-                    Eigen::Affine3f transfo = Eigen::Translation3f(position_plan1)*Eigen::Scaling(dimension1);
-                    Eigen::Affine3f final_transformation = incline_transformation * transfo;
-                    shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * final_transformation.matrix());
+//                    Eigen::Matrix3f rotation_matrix;
+//                    rotation_matrix = Eigen::AngleAxisf(incline_angle, Eigen::Vector3f::UnitX());
+//                    Eigen::Affine3f incline_transformation = Eigen::Affine3f::Identity();
+//                    incline_transformation.rotate(rotation_matrix);
+//                    Eigen::Affine3f transfo = Eigen::Translation3f(position_plan1)*Eigen::Scaling(dimension1);
+//                    Eigen::Affine3f final_transformation = incline_transformation * transfo;
+//                    shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * final_transformation.matrix());
         //**********END**********//
 
         //**********Draw Plan 150degree**********//
-                    Eigen::Matrix3f rotation_matrix_p2;
-                    rotation_matrix_p2 = Eigen::AngleAxisf(incline_angle_p2, Eigen::Vector3f::UnitX());
-                    Eigen::Affine3f incline_transformation_p2 = Eigen::Affine3f::Identity();
-                    incline_transformation_p2.rotate(rotation_matrix_p2);
-                    Eigen::Affine3f transfo_p2 = Eigen::Translation3f(position_plan2)*Eigen::Scaling(dimension2);
-                    Eigen::Affine3f final_transformation_p2 = incline_transformation_p2 * transfo_p2;
-                    shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * final_transformation_p2.matrix());
+//                    Eigen::Matrix3f rotation_matrix_p2;
+//                    rotation_matrix_p2 = Eigen::AngleAxisf(incline_angle_p2, Eigen::Vector3f::UnitX());
+//                    Eigen::Affine3f incline_transformation_p2 = Eigen::Affine3f::Identity();
+//                    incline_transformation_p2.rotate(rotation_matrix_p2);
+//                    Eigen::Affine3f transfo_p2 = Eigen::Translation3f(position_plan2)*Eigen::Scaling(dimension2);
+//                    Eigen::Affine3f final_transformation_p2 = incline_transformation_p2 * transfo_p2;
+//                    shape_->draw(rendering::ShapeDrawer::CUBE, proj_matrix, view_matrix * final_transformation_p2.matrix());
         //**********END**********//
 
     }

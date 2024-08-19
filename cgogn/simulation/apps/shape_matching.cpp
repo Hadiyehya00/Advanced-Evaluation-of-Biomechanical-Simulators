@@ -181,8 +181,8 @@ int main(int argc, char** argv)
     reflect::codecs::json::encoder encode(writer,prefs);
 
     parameters_a param_sim{1800, 0.46f, 100000000, 0.03f};
-    parameters_b plan1{0, -300, 0, 300, 20, 300, 30, 1.0f};
-    parameters_c plan2{0, -300, 0, 300, 20, 300, -30, 1.0f};
+    parameters_b plan1{0, -300, 0, 300, 20, 300, 30, 0.5f};
+    parameters_c plan2{0, -300, 0, 300, 20, 300, -30, 0.5f};
 
     json_data data{param_sim, plan1, plan2};
 
@@ -255,8 +255,8 @@ int main(int argc, char** argv)
     std::srand(std::time(nullptr));
 
     //xpbd.set_vertex_position(*m, position);
-    xpbd.startSimulation();
-    //xpbd.call_set_vertex_position();
+    //xpbd.startSimulation();
+    xpbd.call_set_vertex_position();
 
     return app.launch();
 }
